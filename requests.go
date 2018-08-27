@@ -18,7 +18,7 @@ import (
 
 )
 
-var VERSION string = "0.4"
+var VERSION string = "0.5"
 
 type request struct {
 	httpreq *http.Request

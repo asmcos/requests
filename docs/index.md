@@ -4,11 +4,15 @@
 # example 1
 
 ```
+package main
+
 import "github.com/asmcos/requests"
 
 
-resp := requests.Get("http://go.xiulian.net.cn")
+func main (){
 
-println(resp.Text())
+        resp := requests.Get("http://go.xiulian.net.cn")
+        println(resp.Text())
+}
 
 ```
