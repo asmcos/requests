@@ -1,3 +1,8 @@
+/* Copyright（2） 2018 by  asmcos . All Rights Reserved.
+ * Licensed under the LGPL.
+ */
+
+
 package requests
 
 import (
@@ -69,6 +74,8 @@ func Requests() *request {
 
 	return req
 }
+
+// Get ,req.Get
 
 func Get(origurl string, args ...interface{}) (resp *response) {
 	req := Requests()
@@ -184,6 +191,9 @@ func (req *request) RequestDebug(){
 	}
 }
 
+// cookies
+// cookies only save to Client.Jar
+// req.Cookies is temporary
 func (req *request ) SetCookie(cookie *http.Cookie){
 	req.Cookies = append(req.Cookies,cookie)
 }
@@ -292,6 +302,7 @@ func (resp *response) Json(v interface{}) error {
 }
 
 /**************post*************************/
+// call req.Post ,only for easy
 func Post(origurl string, args ...interface{}) (resp *response) {
 	req := Requests()
 
@@ -299,6 +310,9 @@ func Post(origurl string, args ...interface{}) (resp *response) {
 	resp = req.Post(origurl, args...)
 	return resp
 }
+
+
+// POST requests
 
 func (req *request) Post(origurl string, args ...interface{}) (resp *response) {
 
@@ -373,6 +387,7 @@ func (req *request) Post(origurl string, args ...interface{}) (resp *response) {
 	return resp
 }
 
+// only set forms
 func (req * request)setBodyBytes() {
 
   // maybe
@@ -381,6 +396,8 @@ func (req * request)setBodyBytes() {
 	req.httpreq.ContentLength = int64(len(data))
 }
 
+// upload file and form
+// build to body format
 func (req * request) buildFilesAndForms(files []map[string]string,datas []map[string]string){
 
 	//handle file multipart
@@ -415,6 +432,7 @@ func (req * request) buildFilesAndForms(files []map[string]string,datas []map[st
 	req.Header.Set("Content-Type", w.FormDataContentType())
 }
 
+// build post Form data
 func (req * request)buildForms(datas ...map[string]string)  {
 
 	for _, data := range datas {
@@ -425,16 +443,12 @@ func (req * request)buildForms(datas ...map[string]string)  {
 
 }
 
+// open file for post upload files
+
 func openFile(filename string)*os.File {
     r, err := os.Open(filename)
     if err != nil {
         panic(err)
     }
     return r
-}
-
-/*******/
-// I don't want import fmt or delete fmt replay
-func empty (){
-	_ = fmt.Println
 }

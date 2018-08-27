@@ -22,7 +22,7 @@ func main (){
 }
 ```
 
-## example Post
+## Post
 
 ``` go
 package main
@@ -41,7 +41,7 @@ func main (){
 
 ```
 
-     Server return some data...
+     Server return data...
 
 ``` json
 {
@@ -64,4 +64,43 @@ func main (){
   "url": "https://www.httpbin.org/post"
 }
 
+```
+
+# Set header
+
+### exmaple 1
+
+```
+req := requests.Requests()
+
+resp := req.Get("http://go.xiulian.net.cn",requests.Header{"Referer":"http://www.jeapedu.com"})
+println(resp.Text())
+```
+
+### example 2
+
+```
+req := requests.Requests()
+req.Header.Set("accept-encoding", "gzip, deflate, br")
+resp := req.Get("http://go.xiulian.net.cn",requests.Header{"Referer":"http://www.jeapedu.com"})
+println(resp.Text())
+
+```
+
+### example 3
+
+```
+h := Header{
+  "Referer":         "http://www.jeapedu.com",
+  "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
+}
+resp := req.Get("http://go.xiulian.net.cn",h)
+
+h2 := Header{
+  ...
+  ...
+}
+h3,h4 ....
+// two or more headers ...
+resp = req.Get("http://go.xiulian.net.cn",h,h2,h3,h4)
 ```
