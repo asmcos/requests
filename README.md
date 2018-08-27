@@ -41,7 +41,7 @@ func main (){
 
 ```
 
-     Server return some datas...
+     Server return some data...
 
 ``` json
 {
