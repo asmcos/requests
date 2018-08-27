@@ -70,7 +70,7 @@ func main (){
 
 ### exmaple 1
 
-```
+``` go
 req := requests.Requests()
 
 resp := req.Get("http://go.xiulian.net.cn",requests.Header{"Referer":"http://www.jeapedu.com"})
@@ -79,7 +79,7 @@ println(resp.Text())
 
 ### example 2
 
-```
+``` go
 req := requests.Requests()
 req.Header.Set("accept-encoding", "gzip, deflate, br")
 resp := req.Get("http://go.xiulian.net.cn",requests.Header{"Referer":"http://www.jeapedu.com"})
@@ -89,7 +89,7 @@ println(resp.Text())
 
 ### example 3
 
-```
+``` go
 h := requests.Header{
   "Referer":         "http://www.jeapedu.com",
   "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
@@ -108,7 +108,7 @@ resp = req.Get("http://go.xiulian.net.cn",h,h2,h3,h4)
 
 # Set params
 
-```
+``` go
 p := requests.Params{
   "title": "The blog",
   "name":  "file",
@@ -116,4 +116,36 @@ p := requests.Params{
 }
 resp := req.Get("http://www.cpython.org", p)
 
+```
+
+
+# Auth
+
+      Test with the `correct` user information.
+
+``` go
+req := requests.Requests()
+resp := req.Get("https://api.github.com/user",requests.Auth{"asmcos","password...."})
+println(resp.Text())
+```
+
+github return
+
+```
+{"login":"asmcos","id":xxxxx,"node_id":"Mxxxxxxxxx==".....
+```
+
+# JSON
+
+```
+req := requests.Requests()
+req.Header.Set("Content-Type","application/json")
+resp = req.Get("https://httpbin.org/json")
+
+var json map[string]interface{}
+resp.Json(&json)
+
+for k,v := range json{
+  fmt.Println(k,v)
+}
 ```

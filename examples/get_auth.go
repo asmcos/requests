@@ -6,9 +6,6 @@ import "github.com/asmcos/requests"
 func main (){
 
         req := requests.Requests()
-
-        resp := req.Get("http://go.xiulian.net.cn",requests.Header{"Referer":"http://www.jeapedu.com"})
-
+        resp := req.Get("https://api.github.com/user",requests.Auth{"asmcos","password...."})
         println(resp.Text())
-
 }
