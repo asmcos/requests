@@ -2,7 +2,7 @@
 
 Requests is an HTTP library  , it is easy to use. Similar to Python requests.
 
-# Install
+# Installation
 
 ```
 go get -u github.com/asmcos/requests
@@ -66,6 +66,18 @@ func main (){
 
 ```
 
+# Feature Support
+  - Set headers
+  - Set params
+  - Multipart File Uploads
+  - Sessions with Cookie Persistence
+  - Proxy
+  - Authentication
+  - JSON
+  - Chunked Requests
+  - Debug
+
+
 # Set header
 
 ### exmaple 1
@@ -121,7 +133,7 @@ resp := req.Get("http://www.cpython.org", p)
 
 # Auth
 
-      Test with the `correct` user information.
+Test with the `correct` user information.
 
 ``` go
 req := requests.Requests()
@@ -137,7 +149,7 @@ github return
 
 # JSON
 
-```
+``` go
 req := requests.Requests()
 req.Header.Set("Content-Type","application/json")
 resp = req.Get("https://httpbin.org/json")

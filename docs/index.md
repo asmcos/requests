@@ -1,4 +1,4 @@
-# Install
+# Installation
 
 
 # example 1
