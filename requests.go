@@ -31,7 +31,7 @@ type request struct {
 	Client  *http.Client
 	Debug   int
 	Cookies []*http.Cookie
-	Forms   url.Values
+
 }
 
 type response struct {
@@ -318,7 +318,7 @@ func (req *request) Post(origurl string, args ...interface{}) (resp *response) {
 
 	req.httpreq.Method = "POST"
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	req.Forms = url.Values{}
+
 
 	// set params ?a=b&b=c
 	//set Header
@@ -359,8 +359,8 @@ func (req *request) Post(origurl string, args ...interface{}) (resp *response) {
 		req.buildFilesAndForms(files,datas)
 
 	} else {
-			req.buildForms(datas...)
-			req.setBodyBytes() // set forms to body
+			Forms  := req.buildForms(datas...)
+			req.setBodyBytes(Forms) // set forms to body
   }
 	//prepare to Do
 	URL, err := url.Parse(disturl)
@@ -388,10 +388,10 @@ func (req *request) Post(origurl string, args ...interface{}) (resp *response) {
 }
 
 // only set forms
-func (req * request)setBodyBytes() {
+func (req * request)setBodyBytes(Forms   url.Values) {
 
   // maybe
-	data := req.Forms.Encode()
+	data := Forms.Encode()
 	req.httpreq.Body = ioutil.NopCloser(strings.NewReader(data))
 	req.httpreq.ContentLength = int64(len(data))
 }
@@ -433,14 +433,14 @@ func (req * request) buildFilesAndForms(files []map[string]string,datas []map[st
 }
 
 // build post Form data
-func (req * request)buildForms(datas ...map[string]string)  {
-
+func (req * request)buildForms(datas ...map[string]string) (Forms   url.Values) {
+	Forms = url.Values{}
 	for _, data := range datas {
 		for key, value := range data {
-			req.Forms.Add(key, value)
+			Forms.Add(key, value)
 		}
 	}
-
+	return Forms
 }
 
 // open file for post upload files
