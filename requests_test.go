@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-/*
+
 func TestGet(t *testing.T) {
 	// example 1
 	req := Requests()
@@ -101,7 +101,7 @@ func TestGet(t *testing.T) {
 	req.Get("https://www.httpbin.org")
 
 }
-*/
+
 
 func TestPost(t *testing.T) {
 
