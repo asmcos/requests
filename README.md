@@ -90,17 +90,30 @@ println(resp.Text())
 ### example 3
 
 ```
-h := Header{
+h := requests.Header{
   "Referer":         "http://www.jeapedu.com",
   "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
 }
 resp := req.Get("http://go.xiulian.net.cn",h)
 
-h2 := Header{
+h2 := requests.Header{
   ...
   ...
 }
 h3,h4 ....
 // two or more headers ...
 resp = req.Get("http://go.xiulian.net.cn",h,h2,h3,h4)
+```
+
+
+# Set params
+
+```
+p := requests.Params{
+  "title": "The blog",
+  "name":  "file",
+  "id":    "12345",
+}
+resp := req.Get("http://www.cpython.org", p)
+
 ```
