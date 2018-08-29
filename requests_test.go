@@ -14,7 +14,7 @@ func TestGet(t *testing.T) {
 	req := Requests()
 
 	req.Header.Set("accept-encoding", "gzip, deflate, br")
-	req.Get("http://go.xiulian.net.cn", Header{"Content-Length": "0"}, Params{"c": "d", "e": "f"}, Params{"c": "a"})
+	req.Get("http://go.xiulian.net.cn", Header{"Referer": "http://www.jeapedu.com"}, Params{"c": "d", "e": "f"}, Params{"c": "a"})
 
 	// example 2
 	h := Header{
@@ -22,7 +22,7 @@ func TestGet(t *testing.T) {
 		"Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
 	}
 
-	Get("http://jeapedu.com", h, Header{"Content-Length": "1024"})
+	Get("http://jeapedu.com", h, Header{"accept-encoding", "gzip, deflate, br"})
 
 	// example 3
 	p := Params{

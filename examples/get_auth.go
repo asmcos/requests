@@ -1,12 +1,15 @@
 package main
 
-import "github.com/asmcos/requests"
-
+import (
+	"github.com/asmcos/requests"
+	"fmt"
+)
 
 func main (){
 
         req := requests.Requests()
-        resp := req.Get("https://api.github.com/user",requests.Auth{"asmcos","password..."})
+        resp := req.Get("https://api.github.com/user",requests.Auth{"asmcos","password...."})
         println(resp.Text())
-	println(resp.httpresp)
+	fmt.Println(resp.R.StatusCode)
+	fmt.Println(resp.R.Header["Content-Type"])
 }
