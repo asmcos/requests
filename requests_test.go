@@ -8,6 +8,7 @@ import (
 )
 
 
+
 func TestGet(t *testing.T) {
 	// example 1
 	req := Requests()
@@ -139,6 +140,15 @@ func TestPost(t *testing.T) {
 
 	fmt.Println(resp.Text())
 
+}
 
+
+func TestTimeout(t *testing.T) {
+	req := Requests()
+	req.Debug = 1
+
+  // 20 Second
+	req.SetTimeout(20)
+	req.Get("http://golang.org")
 
 }

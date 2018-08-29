@@ -20,6 +20,7 @@ import (
 	"mime/multipart"
 	"bytes"
 	"io"
+	"time"
 
 )
 
@@ -211,6 +212,11 @@ func (req * request) ClientSetCookies(){
 		req.ClearCookies()
 	}
 
+}
+
+// set timeout s = second
+func (req * request) SetTimeout(n time.Duration){
+	req.Client.Timeout = time.Duration(n * time.Second)
 }
 
 func (req * request) Proxy(proxyurl string){

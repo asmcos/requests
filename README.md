@@ -76,6 +76,7 @@ func main (){
   - JSON
   - Chunked Requests
   - Debug
+  - SetTimeout
 
 
 # Set header
@@ -160,4 +161,16 @@ resp.Json(&json)
 for k,v := range json{
   fmt.Println(k,v)
 }
+```
+
+
+# SetTimeout
+
+```
+req := Requests()
+req.Debug = 1
+
+// 20 Second
+req.SetTimeout(20)
+req.Get("http://golang.org")
 ```
