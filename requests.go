@@ -36,7 +36,7 @@ type request struct {
 }
 
 type response struct {
-	httpresp *http.Response
+	R *http.Response
 	content  []byte
 	text     string
 	req * request
@@ -134,7 +134,7 @@ func (req *request) Get(origurl string, args ...interface{}) (resp *response) {
 	}
 
 	resp = &response{}
-	resp.httpresp = res
+	resp.R = res
 	resp.req = req
 	resp.ResponseDebug()
 	return resp
@@ -244,7 +244,7 @@ func (resp *response) ResponseDebug(){
 
 	fmt.Println("===========Go ResponseDebug ============")
 
-	message, err := httputil.DumpResponse(resp.httpresp, false)
+	message, err := httputil.DumpResponse(resp.R, false)
 	if err != nil {
 		return
 	}
@@ -255,11 +255,11 @@ func (resp *response) ResponseDebug(){
 
 func (resp *response) Content() []byte {
 
-	defer resp.httpresp.Body.Close()
+	defer resp.R.Body.Close()
 	var err error
 
-  var Body = resp.httpresp.Body
-	if resp.httpresp.Header.Get("Content-Encoding") == "gzip" && resp.req.Header.Get("Accept-Encoding") != "" {
+  var Body = resp.R.Body
+	if resp.R.Header.Get("Content-Encoding") == "gzip" && resp.req.Header.Get("Accept-Encoding") != "" {
 		// fmt.Println("gzip")
 		reader, err := gzip.NewReader(Body)
 		if err != nil {
@@ -387,7 +387,7 @@ func (req *request) Post(origurl string, args ...interface{}) (resp *response) {
 	}
 
 	resp = &response{}
-	resp.httpresp = res
+	resp.R = res
 	resp.req = req
 	resp.ResponseDebug()
 	return resp

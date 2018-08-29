@@ -40,7 +40,7 @@ func TestGet(t *testing.T) {
 	//documentation https://www.httpwatch.com/httpgallery/authentication/#showExample10
 	req = Requests()
 	resp = req.Get("https://www.httpwatch.com/httpgallery/authentication/authenticatedimage/default.aspx?0.45874470316137206",Auth{"httpwatch","foo"})
-	fmt.Println(resp.httpresp)
+	fmt.Println(resp.R)
 
   // this save file test PASS
 	// resp.SaveFile("auth.jpeg")
