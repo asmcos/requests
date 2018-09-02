@@ -11,20 +11,24 @@ import (
 
 func TestGet(t *testing.T) {
 	// example 1
+	println("Get example1")
 	req := Requests()
 
 	req.Header.Set("accept-encoding", "gzip, deflate, br")
 	req.Get("http://go.xiulian.net.cn", Header{"Referer": "http://www.jeapedu.com"}, Params{"c": "d", "e": "f"}, Params{"c": "a"})
 
+
 	// example 2
+	println("Get example2")
 	h := Header{
 		"Referer":         "http://www.jeapedu.com",
 		"Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
 	}
 
-	Get("http://jeapedu.com", h, Header{"accept-encoding", "gzip, deflate, br"})
+	Get("http://jeapedu.com", h, Header{"accept-encoding":"gzip, deflate, br"})
 
 	// example 3
+	println("Get example3")
 	p := Params{
 		"title": "The blog",
 		"name":  "file",
@@ -36,6 +40,7 @@ func TestGet(t *testing.T) {
 	fmt.Println(resp.Text())
 
   // example 4
+	println("Get example4")
   // test authentication usernae,password
 	//documentation https://www.httpwatch.com/httpgallery/authentication/#showExample10
 	req = Requests()
@@ -46,6 +51,7 @@ func TestGet(t *testing.T) {
 	// resp.SaveFile("auth.jpeg")
 
 	//example 5 test Json
+	println("Get example5")
 	req = Requests()
 	req.Header.Set("Content-Type","application/json")
 	resp = req.Get("https://httpbin.org/json")
@@ -58,6 +64,7 @@ func TestGet(t *testing.T) {
 	}
 
  // example 6 test gzip
+ println("Get example6")
  req = Requests()
  req.Debug = 1
  resp = req.Get("https://httpbin.org/gzip")
@@ -65,6 +72,7 @@ func TestGet(t *testing.T) {
  fmt.Println(resp.Text())
 
  // example 7 proxy and debug
+ println("Get example7")
  req = Requests()
  req.Debug = 1
  //req.Proxy("http://192.168.1.190:8888")
@@ -74,6 +82,7 @@ func TestGet(t *testing.T) {
  req.Get("https://www.sina.com.cn")
 
  //example 8 test  auto Cookies
+ println("Get example8")
  req = Requests()
  req.Debug = 1
  // req.Proxy("http://192.168.1.190:8888")
@@ -83,6 +92,7 @@ func TestGet(t *testing.T) {
  req.Get("https://www.httpbin.org")
 
   // example 9 test AddCookie
+	println("Get example9")
 	req = Requests()
 	req.Debug = 1
 
@@ -99,17 +109,24 @@ func TestGet(t *testing.T) {
 	req.Get("https://www.httpbin.org/cookies/set?freeform=1234")
 	req.Get("https://www.httpbin.org")
 	req.Get("https://www.httpbin.org/cookies/set?a=33d")
-	req.Get("https://www.httpbin.org")
+	resp = req.Get("https://www.httpbin.org")
+	coo := resp.Cookies()
+	// coo is [] *http.Cookies
+	println("********cookies*******")
+	for _, c:= range coo{
+		fmt.Println(c.Name,c.Value)
+	}
 
 }
 
 
 func TestPost(t *testing.T) {
 
-  fmt.Println(&http.Cookie{})
+
 
   // example 1
 	// set post formdata
+	println("Post example1")
 	req := Requests()
 	req.Debug = 1
 
@@ -130,6 +147,7 @@ func TestPost(t *testing.T) {
 
 
   //example 2 upload files
+	println("Post example2")
 	req = Requests()
 	req.Debug = 1
 	path, _ := os.Getwd()
@@ -144,6 +162,7 @@ func TestPost(t *testing.T) {
 
 
 func TestTimeout(t *testing.T) {
+	println("Timeout example1")
 	req := Requests()
 	req.Debug = 1
 

@@ -307,6 +307,16 @@ func (resp *response) Json(v interface{}) error {
 	return json.Unmarshal(resp.content, v)
 }
 
+func (resp * response) Cookies() (cookies []*http.Cookie){
+	httpreq := resp.req.httpreq
+  client  := resp.req.Client
+
+	cookies = client.Jar.Cookies(httpreq.URL)
+
+	return cookies
+
+}
+
 /**************post*************************/
 // call req.Post ,only for easy
 func Post(origurl string, args ...interface{}) (resp *response) {
