@@ -81,7 +81,7 @@ func main (){
 
 # Set header
 
-### exmaple 1
+### example 1
 
 ``` go
 req := requests.Requests()
