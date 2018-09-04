@@ -174,3 +174,15 @@ req.Debug = 1
 req.SetTimeout(20)
 req.Get("http://golang.org")
 ```
+
+# Get Cookies
+
+``` go
+resp = req.Get("https://www.httpbin.org")
+coo := resp.Cookies()
+// coo is [] *http.Cookies
+println("********cookies*******")
+for _, c:= range coo{
+  fmt.Println(c.Name,c.Value)
+}
+```
