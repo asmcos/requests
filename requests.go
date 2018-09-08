@@ -87,15 +87,15 @@ func Requests() *request {
 
 // Get ,req.Get
 
-func Get(origurl string, args ...interface{}) (resp *response) {
+func Get(origurl string, args ...interface{}) (resp *response ,err error) {
 	req := Requests()
 
 	// call request Get
-	resp = req.Get(origurl, args...)
-	return resp
+	resp, err = req.Get(origurl, args...)
+	return resp,err
 }
 
-func (req *request) Get(origurl string, args ...interface{}) (resp *response) {
+func (req *request) Get(origurl string, args ...interface{}) (resp *response,err error) {
 	// set params ?a=b&b=c
 	//set Header
 	params := []map[string]string{}
@@ -127,7 +127,7 @@ func (req *request) Get(origurl string, args ...interface{}) (resp *response) {
 	//prepare to Do
 	URL, err := url.Parse(disturl)
 	if err != nil {
-		return nil
+		return nil,err
 	}
 	req.httpreq.URL = URL
 
@@ -139,14 +139,14 @@ func (req *request) Get(origurl string, args ...interface{}) (resp *response) {
 
 	if err != nil {
 		fmt.Println(err)
-		return nil
+		return nil,err
 	}
 
 	resp = &response{}
 	resp.R = res
 	resp.req = req
 	resp.ResponseDebug()
-	return resp
+	return resp,nil
 }
 
 // handle URL params
@@ -328,18 +328,18 @@ func (resp * response) Cookies() (cookies []*http.Cookie){
 
 /**************post*************************/
 // call req.Post ,only for easy
-func Post(origurl string, args ...interface{}) (resp *response) {
+func Post(origurl string, args ...interface{}) (resp *response,err error) {
 	req := Requests()
 
 	// call request Get
-	resp = req.Post(origurl, args...)
-	return resp
+	resp,err = req.Post(origurl, args...)
+	return resp,err
 }
 
 
 // POST requests
 
-func (req *request) Post(origurl string, args ...interface{}) (resp *response) {
+func (req *request) Post(origurl string, args ...interface{}) (resp *response,err error) {
 
 	req.httpreq.Method = "POST"
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -390,7 +390,7 @@ func (req *request) Post(origurl string, args ...interface{}) (resp *response) {
 	//prepare to Do
 	URL, err := url.Parse(disturl)
 	if err != nil {
-		return nil
+		return nil,err
 	}
 	req.httpreq.URL = URL
 
@@ -402,14 +402,14 @@ func (req *request) Post(origurl string, args ...interface{}) (resp *response) {
 
 	if err != nil {
 		fmt.Println(err)
-		return nil
+		return nil,err
 	}
 
 	resp = &response{}
 	resp.R = res
 	resp.req = req
 	resp.ResponseDebug()
-	return resp
+	return resp,nil
 }
 
 // only set forms

@@ -20,7 +20,10 @@ import "github.com/asmcos/requests"
 
 func main (){
 
-        resp := requests.Get("http://go.xiulian.net.cn")
+        resp,err := requests.Get("http://go.xiulian.net.cn")
+        if err != nil{
+          return
+        }
         println(resp.Text())
 }
 ```
@@ -38,7 +41,7 @@ func main (){
         data := requests.Datas{
           "name":"requests_post_test",
         }
-        resp := requests.Post("https://www.httpbin.org/post",data)
+        resp,_ := requests.Post("https://www.httpbin.org/post",data)
         println(resp.Text())
 }
 
@@ -89,8 +92,10 @@ func main (){
 ``` go
 req := requests.Requests()
 
-resp := req.Get("http://go.xiulian.net.cn",requests.Header{"Referer":"http://www.jeapedu.com"})
-println(resp.Text())
+resp,err := req.Get("http://go.xiulian.net.cn",requests.Header{"Referer":"http://www.jeapedu.com"})
+if (err == nil){
+  println(resp.Text())
+}
 ```
 
 ### example 2
@@ -98,7 +103,7 @@ println(resp.Text())
 ``` go
 req := requests.Requests()
 req.Header.Set("accept-encoding", "gzip, deflate, br")
-resp := req.Get("http://go.xiulian.net.cn",requests.Header{"Referer":"http://www.jeapedu.com"})
+resp,_ := req.Get("http://go.xiulian.net.cn",requests.Header{"Referer":"http://www.jeapedu.com"})
 println(resp.Text())
 
 ```
@@ -110,7 +115,7 @@ h := requests.Header{
   "Referer":         "http://www.jeapedu.com",
   "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
 }
-resp := req.Get("http://go.xiulian.net.cn",h)
+resp,_ := req.Get("http://go.xiulian.net.cn",h)
 
 h2 := requests.Header{
   ...
@@ -118,7 +123,7 @@ h2 := requests.Header{
 }
 h3,h4 ....
 // two or more headers ...
-resp = req.Get("http://go.xiulian.net.cn",h,h2,h3,h4)
+resp,_ = req.Get("http://go.xiulian.net.cn",h,h2,h3,h4)
 ```
 
 
@@ -130,7 +135,7 @@ p := requests.Params{
   "name":  "file",
   "id":    "12345",
 }
-resp := req.Get("http://www.cpython.org", p)
+resp,_ := req.Get("http://www.cpython.org", p)
 
 ```
 
@@ -141,7 +146,7 @@ Test with the `correct` user information.
 
 ``` go
 req := requests.Requests()
-resp := req.Get("https://api.github.com/user",requests.Auth{"asmcos","password...."})
+resp,_ := req.Get("https://api.github.com/user",requests.Auth{"asmcos","password...."})
 println(resp.Text())
 ```
 
@@ -156,7 +161,7 @@ github return
 ``` go
 req := requests.Requests()
 req.Header.Set("Content-Type","application/json")
-resp = req.Get("https://httpbin.org/json")
+resp,_ = req.Get("https://httpbin.org/json")
 
 var json map[string]interface{}
 resp.Json(&json)
@@ -181,7 +186,7 @@ req.Get("http://golang.org")
 # Get Cookies
 
 ``` go
-resp = req.Get("https://www.httpbin.org")
+resp,_ = req.Get("https://www.httpbin.org")
 coo := resp.Cookies()
 // coo is [] *http.Cookies
 println("********cookies*******")

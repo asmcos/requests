@@ -11,7 +11,10 @@ import "github.com/asmcos/requests"
 
 func main (){
 
-        resp := requests.Get("http://go.xiulian.net.cn")
+        resp,err := requests.Get("http://go.xiulian.net.cn")
+        if err != nil {
+          return 
+        }
         println(resp.Text())
 }
 

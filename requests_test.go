@@ -34,19 +34,22 @@ func TestGet(t *testing.T) {
 		"name":  "file",
 		"id":    "12345",
 	}
-	resp := Requests().Get("http://www.cpython.org", p)
+	resp, err:= Requests().Get("http://www.cpython.org", p)
 
-	resp.Text()
-	fmt.Println(resp.Text())
+	if err == nil {
+		resp.Text()
+		fmt.Println(resp.Text())
+	}
 
   // example 4
 	println("Get example4")
   // test authentication usernae,password
 	//documentation https://www.httpwatch.com/httpgallery/authentication/#showExample10
 	req = Requests()
-	resp = req.Get("https://www.httpwatch.com/httpgallery/authentication/authenticatedimage/default.aspx?0.45874470316137206",Auth{"httpwatch","foo"})
-	fmt.Println(resp.R)
-
+	resp,err = req.Get("https://www.httpwatch.com/httpgallery/authentication/authenticatedimage/default.aspx?0.45874470316137206",Auth{"httpwatch","foo"})
+	if err == nil {
+		fmt.Println(resp.R)
+	}
   // this save file test PASS
 	// resp.SaveFile("auth.jpeg")
 
@@ -54,31 +57,33 @@ func TestGet(t *testing.T) {
 	println("Get example5")
 	req = Requests()
 	req.Header.Set("Content-Type","application/json")
-	resp = req.Get("https://httpbin.org/json")
+	resp,err = req.Get("https://httpbin.org/json")
 
-	var json map[string]interface{}
-  resp.Json(&json)
+  if err == nil {
+		var json map[string]interface{}
+	  resp.Json(&json)
 
-	for k,v := range json{
-		fmt.Println(k,v)
-	}
+		for k,v := range json{
+			fmt.Println(k,v)
+		}
+  }
 
  // example 6 test gzip
  println("Get example6")
  req = Requests()
  req.Debug = 1
- resp = req.Get("https://httpbin.org/gzip")
-
- fmt.Println(resp.Text())
-
+ resp,err = req.Get("https://httpbin.org/gzip")
+ if err == nil {
+ 		fmt.Println(resp.Text())
+ }
  // example 7 proxy and debug
  println("Get example7")
  req = Requests()
  req.Debug = 1
+
+ // You need open the line
  //req.Proxy("http://192.168.1.190:8888")
 
- resp = req.Get("https://www.sina.com.cn")
- // fmt.Println(resp.Text())
  req.Get("https://www.sina.com.cn")
 
  //example 8 test  auto Cookies
@@ -109,14 +114,16 @@ func TestGet(t *testing.T) {
 	req.Get("https://www.httpbin.org/cookies/set?freeform=1234")
 	req.Get("https://www.httpbin.org")
 	req.Get("https://www.httpbin.org/cookies/set?a=33d")
-	resp = req.Get("https://www.httpbin.org")
-	coo := resp.Cookies()
-	// coo is [] *http.Cookies
-	println("********cookies*******")
-	for _, c:= range coo{
-		fmt.Println(c.Name,c.Value)
-	}
+	resp,err = req.Get("https://www.httpbin.org")
 
+	if err == nil{
+		coo := resp.Cookies()
+		// coo is [] *http.Cookies
+		println("********cookies*******")
+		for _, c:= range coo{
+			fmt.Println(c.Name,c.Value)
+		}
+  }
 }
 
 
@@ -141,10 +148,10 @@ func TestPost(t *testing.T) {
 	    "topping": "bacon",
 	  }
 
-	resp := req.Post("https://www.httpbin.org/post",data)
-
-	fmt.Println(resp.Text())
-
+	resp,err := req.Post("https://www.httpbin.org/post",data)
+	if err == nil {
+		fmt.Println(resp.Text())
+  }
 
   //example 2 upload files
 	println("Post example2")
@@ -154,10 +161,10 @@ func TestPost(t *testing.T) {
   path1 := path +  "/README.md"
 	path2 := path +  "/docs/index.md"
 
-  resp = req.Post("https://www.httpbin.org/post",data,Files{"a":path1,"b":path2})
-
-	fmt.Println(resp.Text())
-
+  resp,err = req.Post("https://www.httpbin.org/post",data,Files{"a":path1,"b":path2})
+  if err == nil {
+		fmt.Println(resp.Text())
+	}
 }
 
 
