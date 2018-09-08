@@ -24,7 +24,7 @@ import (
 
 )
 
-var VERSION string = "0.5"
+var VERSION string = "0.6"
 
 type request struct {
 	httpreq *http.Request
@@ -67,10 +67,9 @@ func Requests() *request {
 	req.Client = &http.Client{}
 
   // auto with Cookies
-	jar, err := cookiejar.New(nil)
-	if err != nil {
-			return nil
-	}
+	// cookiejar.New source code return jar, nil
+	jar, _:= cookiejar.New(nil)
+
 	req.Client.Jar = jar
 
 	return req
