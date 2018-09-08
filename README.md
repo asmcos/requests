@@ -1,3 +1,6 @@
+
+[![license](http://img.shields.io/badge/license-MIT-red.svg?style=flat)](https://raw.githubusercontent.com/asmcos/requests/master/LICENSE)
+
 # requests
 
 Requests is an HTTP library  , it is easy to use. Similar to Python requests.
