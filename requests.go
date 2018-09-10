@@ -1,37 +1,35 @@
 /* Copyright（2） 2018 by  asmcos .
-  Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+     http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
- */
-
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+*/
 
 package requests
 
 import (
+	"bytes"
+	"compress/gzip"
+	"crypto/tls"
+	"encoding/json"
+	"fmt"
+	"io"
 	"io/ioutil"
+	"mime/multipart"
 	"net/http"
+	"net/http/cookiejar"
 	"net/http/httputil"
 	"net/url"
-	"strings"
-	"fmt"
-	"compress/gzip"
-	"encoding/json"
 	"os"
-	"crypto/tls"
-	"net/http/cookiejar"
-	"mime/multipart"
-	"bytes"
-	"io"
+	"strings"
 	"time"
-
 )
 
 var VERSION string = "0.6"
@@ -42,20 +40,19 @@ type request struct {
 	Client  *http.Client
 	Debug   int
 	Cookies []*http.Cookie
-
 }
 
 type response struct {
-	R *http.Response
-	content  []byte
-	text     string
-	req * request
+	R       *http.Response
+	content []byte
+	text    string
+	req     *request
 }
 
 type Header map[string]string
 type Params map[string]string
-type Datas  map[string]string  // for post form
-type Files  map[string]string  // name ,filename
+type Datas map[string]string // for post form
+type Files map[string]string // name ,filename
 
 // {username,password}
 type Auth []string
@@ -76,9 +73,9 @@ func Requests() *request {
 
 	req.Client = &http.Client{}
 
-  // auto with Cookies
+	// auto with Cookies
 	// cookiejar.New source code return jar, nil
-	jar, _:= cookiejar.New(nil)
+	jar, _ := cookiejar.New(nil)
 
 	req.Client.Jar = jar
 
@@ -87,22 +84,22 @@ func Requests() *request {
 
 // Get ,req.Get
 
-func Get(origurl string, args ...interface{}) (resp *response ,err error) {
+func Get(origurl string, args ...interface{}) (resp *response, err error) {
 	req := Requests()
 
 	// call request Get
 	resp, err = req.Get(origurl, args...)
-	return resp,err
+	return resp, err
 }
 
-func (req *request) Get(origurl string, args ...interface{}) (resp *response,err error) {
+func (req *request) Get(origurl string, args ...interface{}) (resp *response, err error) {
 	// set params ?a=b&b=c
 	//set Header
 	params := []map[string]string{}
 
-  //reset Cookies,
+	//reset Cookies,
 	//Client.Do can copy cookie from client.Jar to req.Header
-	delete(req.httpreq.Header,"Cookie")
+	delete(req.httpreq.Header, "Cookie")
 
 	for _, arg := range args {
 		switch a := arg.(type) {
@@ -118,7 +115,7 @@ func (req *request) Get(origurl string, args ...interface{}) (resp *response,err
 			params = append(params, a)
 		case Auth:
 			// a{username,password}
-			req.httpreq.SetBasicAuth(a[0],a[1])
+			req.httpreq.SetBasicAuth(a[0], a[1])
 		}
 	}
 
@@ -127,7 +124,7 @@ func (req *request) Get(origurl string, args ...interface{}) (resp *response,err
 	//prepare to Do
 	URL, err := url.Parse(disturl)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	req.httpreq.URL = URL
 
@@ -139,14 +136,14 @@ func (req *request) Get(origurl string, args ...interface{}) (resp *response,err
 
 	if err != nil {
 		fmt.Println(err)
-		return nil,err
+		return nil, err
 	}
 
 	resp = &response{}
 	resp.R = res
 	resp.req = req
 	resp.ResponseDebug()
-	return resp,nil
+	return resp, nil
 }
 
 // handle URL params
@@ -178,10 +175,9 @@ func addQueryParams(parsedURL *url.URL, parsedQuery url.Values) string {
 	return strings.Replace(parsedURL.String(), "?"+parsedURL.RawQuery, "", -1)
 }
 
-func (req *request) RequestDebug(){
+func (req *request) RequestDebug() {
 
-
-  if req.Debug != 1{
+	if req.Debug != 1 {
 		return
 	}
 
@@ -191,28 +187,28 @@ func (req *request) RequestDebug(){
 	if err != nil {
 		return
 	}
-  fmt.Println(string(message))
+	fmt.Println(string(message))
 
-	if len(req.Client.Jar.Cookies(req.httpreq.URL)) > 0{
+	if len(req.Client.Jar.Cookies(req.httpreq.URL)) > 0 {
 		fmt.Println("Cookies:")
 		for _, cookie := range req.Client.Jar.Cookies(req.httpreq.URL) {
-	            fmt.Println(cookie)
-	  }
+			fmt.Println(cookie)
+		}
 	}
 }
 
 // cookies
 // cookies only save to Client.Jar
 // req.Cookies is temporary
-func (req *request ) SetCookie(cookie *http.Cookie){
-	req.Cookies = append(req.Cookies,cookie)
+func (req *request) SetCookie(cookie *http.Cookie) {
+	req.Cookies = append(req.Cookies, cookie)
 }
 
-func (req * request) ClearCookies(){
+func (req *request) ClearCookies() {
 	req.Cookies = req.Cookies[0:0]
 }
 
-func (req * request) ClientSetCookies(){
+func (req *request) ClientSetCookies() {
 
 	if len(req.Cookies) > 0 {
 		// 1. Cookies have content, Copy Cookies to Client.jar
@@ -224,28 +220,27 @@ func (req * request) ClientSetCookies(){
 }
 
 // set timeout s = second
-func (req * request) SetTimeout(n time.Duration){
+func (req *request) SetTimeout(n time.Duration) {
 	req.Client.Timeout = time.Duration(n * time.Second)
 }
 
-func (req * request) Proxy(proxyurl string){
+func (req *request) Proxy(proxyurl string) {
 
 	urli := url.URL{}
-	urlproxy, err:= urli.Parse(proxyurl)
-  if err != nil {
+	urlproxy, err := urli.Parse(proxyurl)
+	if err != nil {
 		fmt.Println("Set proxy failed")
 		return
 	}
 	req.Client.Transport = &http.Transport{
-		Proxy:http.ProxyURL(urlproxy),
+		Proxy:           http.ProxyURL(urlproxy),
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 
 }
 
 /**************/
-func (resp *response) ResponseDebug(){
-
+func (resp *response) ResponseDebug() {
 
 	if resp.req.Debug != 1 {
 		return
@@ -267,7 +262,7 @@ func (resp *response) Content() []byte {
 	defer resp.R.Body.Close()
 	var err error
 
-  var Body = resp.R.Body
+	var Body = resp.R.Body
 	if resp.R.Header.Get("Content-Encoding") == "gzip" && resp.req.Header.Get("Accept-Encoding") != "" {
 		// fmt.Println("gzip")
 		reader, err := gzip.NewReader(Body)
@@ -279,7 +274,7 @@ func (resp *response) Content() []byte {
 
 	resp.content, err = ioutil.ReadAll(Body)
 	if err != nil {
-			return nil
+		return nil
 	}
 
 	return resp.content
@@ -316,9 +311,9 @@ func (resp *response) Json(v interface{}) error {
 	return json.Unmarshal(resp.content, v)
 }
 
-func (resp * response) Cookies() (cookies []*http.Cookie){
+func (resp *response) Cookies() (cookies []*http.Cookie) {
 	httpreq := resp.req.httpreq
-  client  := resp.req.Client
+	client := resp.req.Client
 
 	cookies = client.Jar.Cookies(httpreq.URL)
 
@@ -328,22 +323,20 @@ func (resp * response) Cookies() (cookies []*http.Cookie){
 
 /**************post*************************/
 // call req.Post ,only for easy
-func Post(origurl string, args ...interface{}) (resp *response,err error) {
+func Post(origurl string, args ...interface{}) (resp *response, err error) {
 	req := Requests()
 
 	// call request Get
-	resp,err = req.Post(origurl, args...)
-	return resp,err
+	resp, err = req.Post(origurl, args...)
+	return resp, err
 }
-
 
 // POST requests
 
-func (req *request) Post(origurl string, args ...interface{}) (resp *response,err error) {
+func (req *request) Post(origurl string, args ...interface{}) (resp *response, err error) {
 
 	req.httpreq.Method = "POST"
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-
 
 	// set params ?a=b&b=c
 	//set Header
@@ -351,9 +344,9 @@ func (req *request) Post(origurl string, args ...interface{}) (resp *response,er
 	datas := []map[string]string{} // POST
 	files := []map[string]string{} //post file
 
-  //reset Cookies,
+	//reset Cookies,
 	//Client.Do can copy cookie from client.Jar to req.Header
-	delete(req.httpreq.Header,"Cookie")
+	delete(req.httpreq.Header, "Cookie")
 
 	for _, arg := range args {
 		switch a := arg.(type) {
@@ -368,29 +361,29 @@ func (req *request) Post(origurl string, args ...interface{}) (resp *response,er
 		case Params:
 			params = append(params, a)
 
-		case Datas:   //Post form data,packaged in body.
-			datas = append(datas,a)
+		case Datas: //Post form data,packaged in body.
+			datas = append(datas, a)
 		case Files:
-			files = append(files,a)
+			files = append(files, a)
 		case Auth:
 			// a{username,password}
-			req.httpreq.SetBasicAuth(a[0],a[1])
+			req.httpreq.SetBasicAuth(a[0], a[1])
 		}
 	}
 
 	disturl, _ := buildURLParams(origurl, params...)
 
-	if len(files) > 0{
-		req.buildFilesAndForms(files,datas)
+	if len(files) > 0 {
+		req.buildFilesAndForms(files, datas)
 
 	} else {
-			Forms  := req.buildForms(datas...)
-			req.setBodyBytes(Forms) // set forms to body
-  }
+		Forms := req.buildForms(datas...)
+		req.setBodyBytes(Forms) // set forms to body
+	}
 	//prepare to Do
 	URL, err := url.Parse(disturl)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	req.httpreq.URL = URL
 
@@ -402,20 +395,20 @@ func (req *request) Post(origurl string, args ...interface{}) (resp *response,er
 
 	if err != nil {
 		fmt.Println(err)
-		return nil,err
+		return nil, err
 	}
 
 	resp = &response{}
 	resp.R = res
 	resp.req = req
 	resp.ResponseDebug()
-	return resp,nil
+	return resp, nil
 }
 
 // only set forms
-func (req * request)setBodyBytes(Forms   url.Values) {
+func (req *request) setBodyBytes(Forms url.Values) {
 
-  // maybe
+	// maybe
 	data := Forms.Encode()
 	req.httpreq.Body = ioutil.NopCloser(strings.NewReader(data))
 	req.httpreq.ContentLength = int64(len(data))
@@ -423,42 +416,44 @@ func (req * request)setBodyBytes(Forms   url.Values) {
 
 // upload file and form
 // build to body format
-func (req * request) buildFilesAndForms(files []map[string]string,datas []map[string]string){
+func (req *request) buildFilesAndForms(files []map[string]string, datas []map[string]string) {
 
 	//handle file multipart
 
 	var b bytes.Buffer
 	w := multipart.NewWriter(&b)
 
-	for _,file := range files{
-		for k,v := range file{
+	for _, file := range files {
+		for k, v := range file {
 			part, err := w.CreateFormFile(k, v)
 			if err != nil {
-			  fmt.Printf("Upload %s failed!",v)
+				fmt.Printf("Upload %s failed!", v)
 				panic(err)
 			}
 			file := openFile(v)
 			_, err = io.Copy(part, file)
+			if err != nil {
+				panic(err)
+			}
 		}
 	}
 
-	for _,data := range datas{
-		for k,v := range data{
-			w.WriteField(k,v)
+	for _, data := range datas {
+		for k, v := range data {
+			w.WriteField(k, v)
 		}
 	}
 
-
-  w.Close()
-  // set file header example:
+	w.Close()
+	// set file header example:
 	// "Content-Type": "multipart/form-data; boundary=------------------------7d87eceb5520850c",
-	req.httpreq.Body = ioutil.NopCloser( bytes.NewReader(b.Bytes()) )
+	req.httpreq.Body = ioutil.NopCloser(bytes.NewReader(b.Bytes()))
 	req.httpreq.ContentLength = int64(b.Len())
 	req.Header.Set("Content-Type", w.FormDataContentType())
 }
 
 // build post Form data
-func (req * request)buildForms(datas ...map[string]string) (Forms   url.Values) {
+func (req *request) buildForms(datas ...map[string]string) (Forms url.Values) {
 	Forms = url.Values{}
 	for _, data := range datas {
 		for key, value := range data {
@@ -470,10 +465,10 @@ func (req * request)buildForms(datas ...map[string]string) (Forms   url.Values) 
 
 // open file for post upload files
 
-func openFile(filename string)*os.File {
-    r, err := os.Open(filename)
-    if err != nil {
-        panic(err)
-    }
-    return r
+func openFile(filename string) *os.File {
+	r, err := os.Open(filename)
+	if err != nil {
+		panic(err)
+	}
+	return r
 }
