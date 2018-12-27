@@ -34,7 +34,7 @@ import (
 
 var VERSION string = "0.6"
 
-type request struct {
+type Request struct {
 	httpreq *http.Request
 	Header  *http.Header
 	Client  *http.Client
@@ -42,11 +42,11 @@ type request struct {
 	Cookies []*http.Cookie
 }
 
-type response struct {
+type Response struct {
 	R       *http.Response
 	content []byte
 	text    string
-	req     *request
+	req     *Request
 }
 
 type Header map[string]string
@@ -57,9 +57,9 @@ type Files map[string]string // name ,filename
 // {username,password}
 type Auth []string
 
-func Requests() *request {
+func Requests() *Request {
 
-	req := new(request)
+	req := new(Request)
 
 	req.httpreq = &http.Request{
 		Method:     "GET",
@@ -84,7 +84,7 @@ func Requests() *request {
 
 // Get ,req.Get
 
-func Get(origurl string, args ...interface{}) (resp *response, err error) {
+func Get(origurl string, args ...interface{}) (resp *Response, err error) {
 	req := Requests()
 
 	// call request Get
@@ -92,7 +92,7 @@ func Get(origurl string, args ...interface{}) (resp *response, err error) {
 	return resp, err
 }
 
-func (req *request) Get(origurl string, args ...interface{}) (resp *response, err error) {
+func (req *Request) Get(origurl string, args ...interface{}) (resp *Response, err error) {
 	// set params ?a=b&b=c
 	//set Header
 	params := []map[string]string{}
@@ -139,7 +139,7 @@ func (req *request) Get(origurl string, args ...interface{}) (resp *response, er
 		return nil, err
 	}
 
-	resp = &response{}
+	resp = &Response{}
 	resp.R = res
 	resp.req = req
 	resp.ResponseDebug()
@@ -175,7 +175,7 @@ func addQueryParams(parsedURL *url.URL, parsedQuery url.Values) string {
 	return strings.Replace(parsedURL.String(), "?"+parsedURL.RawQuery, "", -1)
 }
 
-func (req *request) RequestDebug() {
+func (req *Request) RequestDebug() {
 
 	if req.Debug != 1 {
 		return
@@ -200,15 +200,15 @@ func (req *request) RequestDebug() {
 // cookies
 // cookies only save to Client.Jar
 // req.Cookies is temporary
-func (req *request) SetCookie(cookie *http.Cookie) {
+func (req *Request) SetCookie(cookie *http.Cookie) {
 	req.Cookies = append(req.Cookies, cookie)
 }
 
-func (req *request) ClearCookies() {
+func (req *Request) ClearCookies() {
 	req.Cookies = req.Cookies[0:0]
 }
 
-func (req *request) ClientSetCookies() {
+func (req *Request) ClientSetCookies() {
 
 	if len(req.Cookies) > 0 {
 		// 1. Cookies have content, Copy Cookies to Client.jar
@@ -220,11 +220,11 @@ func (req *request) ClientSetCookies() {
 }
 
 // set timeout s = second
-func (req *request) SetTimeout(n time.Duration) {
+func (req *Request) SetTimeout(n time.Duration) {
 	req.Client.Timeout = time.Duration(n * time.Second)
 }
 
-func (req *request) Proxy(proxyurl string) {
+func (req *Request) Proxy(proxyurl string) {
 
 	urli := url.URL{}
 	urlproxy, err := urli.Parse(proxyurl)
@@ -240,7 +240,7 @@ func (req *request) Proxy(proxyurl string) {
 }
 
 /**************/
-func (resp *response) ResponseDebug() {
+func (resp *Response) ResponseDebug() {
 
 	if resp.req.Debug != 1 {
 		return
@@ -257,7 +257,7 @@ func (resp *response) ResponseDebug() {
 
 }
 
-func (resp *response) Content() []byte {
+func (resp *Response) Content() []byte {
 
 	defer resp.R.Body.Close()
 	var err error
@@ -280,7 +280,7 @@ func (resp *response) Content() []byte {
 	return resp.content
 }
 
-func (resp *response) Text() string {
+func (resp *Response) Text() string {
 	if resp.content == nil {
 		resp.Content()
 	}
@@ -288,7 +288,7 @@ func (resp *response) Text() string {
 	return resp.text
 }
 
-func (resp *response) SaveFile(filename string) error {
+func (resp *Response) SaveFile(filename string) error {
 	if resp.content == nil {
 		resp.Content()
 	}
@@ -304,14 +304,14 @@ func (resp *response) SaveFile(filename string) error {
 	return err
 }
 
-func (resp *response) Json(v interface{}) error {
+func (resp *Response) Json(v interface{}) error {
 	if resp.content == nil {
 		resp.Content()
 	}
 	return json.Unmarshal(resp.content, v)
 }
 
-func (resp *response) Cookies() (cookies []*http.Cookie) {
+func (resp *Response) Cookies() (cookies []*http.Cookie) {
 	httpreq := resp.req.httpreq
 	client := resp.req.Client
 
@@ -323,7 +323,7 @@ func (resp *response) Cookies() (cookies []*http.Cookie) {
 
 /**************post*************************/
 // call req.Post ,only for easy
-func Post(origurl string, args ...interface{}) (resp *response, err error) {
+func Post(origurl string, args ...interface{}) (resp *Response, err error) {
 	req := Requests()
 
 	// call request Get
@@ -333,7 +333,7 @@ func Post(origurl string, args ...interface{}) (resp *response, err error) {
 
 // POST requests
 
-func (req *request) Post(origurl string, args ...interface{}) (resp *response, err error) {
+func (req *Request) Post(origurl string, args ...interface{}) (resp *Response, err error) {
 
 	req.httpreq.Method = "POST"
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -398,7 +398,7 @@ func (req *request) Post(origurl string, args ...interface{}) (resp *response, e
 		return nil, err
 	}
 
-	resp = &response{}
+	resp = &Response{}
 	resp.R = res
 	resp.req = req
 	resp.ResponseDebug()
@@ -406,7 +406,7 @@ func (req *request) Post(origurl string, args ...interface{}) (resp *response, e
 }
 
 // only set forms
-func (req *request) setBodyBytes(Forms url.Values) {
+func (req *Request) setBodyBytes(Forms url.Values) {
 
 	// maybe
 	data := Forms.Encode()
@@ -416,7 +416,7 @@ func (req *request) setBodyBytes(Forms url.Values) {
 
 // upload file and form
 // build to body format
-func (req *request) buildFilesAndForms(files []map[string]string, datas []map[string]string) {
+func (req *Request) buildFilesAndForms(files []map[string]string, datas []map[string]string) {
 
 	//handle file multipart
 
@@ -453,7 +453,7 @@ func (req *request) buildFilesAndForms(files []map[string]string, datas []map[st
 }
 
 // build post Form data
-func (req *request) buildForms(datas ...map[string]string) (Forms url.Values) {
+func (req *Request) buildForms(datas ...map[string]string) (Forms url.Values) {
 	Forms = url.Values{}
 	for _, data := range datas {
 		for key, value := range data {
