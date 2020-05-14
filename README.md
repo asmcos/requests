@@ -123,7 +123,7 @@ h2 := requests.Header{
 }
 h3,h4 ....
 // two or more headers ...
-resp,_ = req.Get("http://go.xiulian.net.cn",h,h2,h3,h4)
+resp,_ := req.Get("http://go.xiulian.net.cn",h,h2,h3,h4)
 ```
 
 
@@ -161,7 +161,7 @@ github return
 ``` go
 req := requests.Requests()
 req.Header.Set("Content-Type","application/json")
-resp,_ = req.Get("https://httpbin.org/json")
+resp,_ := req.Get("https://httpbin.org/json")
 
 var json map[string]interface{}
 resp.Json(&json)
