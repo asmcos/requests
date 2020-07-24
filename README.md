@@ -72,6 +72,49 @@ func main (){
 
 ```
 
+
+## PostJson
+
+``` go
+package main
+
+import "github.com/asmcos/requests"
+
+
+func main (){
+
+        jsonStr := "{\"name\":\"requests_post_test\"}"
+        resp,_ := requests.PostJson("https://www.httpbin.org/post",jsonStr)
+        println(resp.Text())
+}
+
+```
+
+     Server return data...
+
+``` json
+{
+  "args": {},
+  "data": "",
+  "files": {},
+  "form": {
+    "name": "requests_post_test"
+  },
+  "headers": {
+    "Accept-Encoding": "gzip",
+    "Connection": "close",
+    "Content-Length": "23",
+    "Content-Type": "application/x-www-form-urlencoded",
+    "Host": "www.httpbin.org",
+    "User-Agent": "Go-Requests 0.5"
+  },
+  "json": null,
+  "origin": "114.242.34.110",
+  "url": "https://www.httpbin.org/post"
+}
+
+```
+
 # Feature Support
   - Set headers
   - Set params
