@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"testing"
+	"github.com/davecgh/go-spew/spew"
 )
 
 func TestGet(t *testing.T) {
@@ -13,16 +14,16 @@ func TestGet(t *testing.T) {
 	req := Requests()
 
 	req.Header.Set("accept-encoding", "gzip, deflate, br")
-	req.Get("http://go.xiulian.net.cn", Header{"Referer": "http://www.jeapedu.com"}, Params{"c": "d", "e": "f"}, Params{"c": "a"})
+	req.Get("http://www.zhanluejia.net.cn", Header{"Referer": "http://www.jeapedu.com"}, Params{"c": "d", "e": "f"}, Params{"c": "a"})
 
 	// example 2
 	println("Get example2")
 	h := Header{
-		"Referer":         "http://www.jeapedu.com",
+		"Referer":         "http://www.zhanluejia.net.cn",
 		"Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
 	}
 
-	Get("http://jeapedu.com", h, Header{"accept-encoding": "gzip, deflate, br"})
+	Get("http://www.zhanluejia.net.cn", h, Header{"accept-encoding": "gzip, deflate, br"})
 
 	// example 3
 	println("Get example3")
@@ -167,5 +168,24 @@ func TestTimeout(t *testing.T) {
 	// 20 Second
 	req.SetTimeout(20)
 	req.Get("http://golang.org")
+
+}
+
+func TestPostGet(t *testing.T){
+
+	println("Test Post and Get")
+
+    client:= Requests()
+    client.Debug = 1
+
+    resp,err := client.Post("https://www.httpbin.org/post",Datas{"abc":"123","ddd":"789"})
+
+	spew.Dump(client)
+	
+    resp,err =client.Get("https://www.httpbin.org/get")
+    if err!= nil{
+        fmt.Println(err)
+    }
+    fmt.Println(resp.Text())
 
 }

@@ -30,9 +30,10 @@ import (
 	"os"
 	"strings"
 	"time"
+
 )
 
-var VERSION string = "0.6"
+var VERSION string = "0.7"
 
 type Request struct {
 	httpreq *http.Request
@@ -93,6 +94,12 @@ func Get(origurl string, args ...interface{}) (resp *Response, err error) {
 }
 
 func (req *Request) Get(origurl string, args ...interface{}) (resp *Response, err error) {
+
+	req.httpreq.Method = "GET"
+	req.httpreq.Header = make(http.Header)
+	req.Header = &req.httpreq.Header
+	req.httpreq.Header.Set("User-Agent", "Go-Requests "+VERSION)
+
 	// set params ?a=b&b=c
 	//set Header
 	params := []map[string]string{}
@@ -386,6 +393,11 @@ func (req *Request) PostJson(origurl string, args ...interface{}) (resp *Respons
 
 	res, err := req.Client.Do(req.httpreq)
 
+	// clear post  request information
+	req.httpreq.Body = nil
+	req.httpreq.GetBody = nil
+	req.httpreq.ContentLength = 0
+
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -403,6 +415,11 @@ func (req *Request) PostJson(origurl string, args ...interface{}) (resp *Respons
 func (req *Request) Post(origurl string, args ...interface{}) (resp *Response, err error) {
 
 	req.httpreq.Method = "POST"
+
+	req.httpreq.Header = make(http.Header)
+	req.Header = &req.httpreq.Header
+	req.httpreq.Header.Set("User-Agent", "Go-Requests "+VERSION)
+
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	// set params ?a=b&b=c
@@ -459,6 +476,11 @@ func (req *Request) Post(origurl string, args ...interface{}) (resp *Response, e
 	req.RequestDebug()
 
 	res, err := req.Client.Do(req.httpreq)
+
+	// clear post param
+	req.httpreq.Body = nil
+	req.httpreq.GetBody = nil
+	req.httpreq.ContentLength = 0
 
 	if err != nil {
 		fmt.Println(err)
