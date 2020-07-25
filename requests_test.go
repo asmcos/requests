@@ -121,6 +121,8 @@ func TestGet(t *testing.T) {
 			fmt.Println(c.Name, c.Value)
 		}
 	}
+
+
 }
 
 func TestPost(t *testing.T) {
@@ -159,6 +161,25 @@ func TestPost(t *testing.T) {
 		fmt.Println(resp.Text())
 	}
 
+
+	req = Requests()
+	cookie := &http.Cookie{}
+	cookie.Name = "postcookie"
+	cookie.Value = "20200725"
+	cookie.Path = "/"
+
+	req.SetCookie(cookie)
+
+	//test post cookies
+	resp, err = req.Post("https://www.httpbin.org/post", data)
+	if err == nil {
+		coo := resp.Cookies()
+		// coo is [] *http.Cookies
+		println("********Post cookies*******")
+		for _, c := range coo {
+			fmt.Println(c.Name, c.Value)
+		}
+	}
 
 }
 
