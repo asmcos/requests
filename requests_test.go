@@ -158,6 +158,8 @@ func TestPost(t *testing.T) {
 	if err == nil {
 		fmt.Println(resp.Text())
 	}
+
+
 }
 
 func TestTimeout(t *testing.T) {
@@ -181,7 +183,7 @@ func TestPostGet(t *testing.T){
     resp,err := client.Post("https://www.httpbin.org/post",Datas{"abc":"123","ddd":"789"})
 
 	spew.Dump(client)
-	
+
     resp,err =client.Get("https://www.httpbin.org/get")
     if err!= nil{
         fmt.Println(err)

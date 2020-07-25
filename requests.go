@@ -96,9 +96,6 @@ func Get(origurl string, args ...interface{}) (resp *Response, err error) {
 func (req *Request) Get(origurl string, args ...interface{}) (resp *Response, err error) {
 
 	req.httpreq.Method = "GET"
-	req.httpreq.Header = make(http.Header)
-	req.Header = &req.httpreq.Header
-	req.httpreq.Header.Set("User-Agent", "Go-Requests "+VERSION)
 
 	// set params ?a=b&b=c
 	//set Header
@@ -353,6 +350,7 @@ func PostJson(origurl string, args ...interface{}) (resp *Response, err error) {
 func (req *Request) PostJson(origurl string, args ...interface{}) (resp *Response, err error) {
 
 	req.httpreq.Method = "POST"
+
 	req.Header.Add("Content-Type", "application/json")
 
 	//set Header
@@ -416,11 +414,10 @@ func (req *Request) Post(origurl string, args ...interface{}) (resp *Response, e
 
 	req.httpreq.Method = "POST"
 
-	req.httpreq.Header = make(http.Header)
-	req.Header = &req.httpreq.Header
-	req.httpreq.Header.Set("User-Agent", "Go-Requests "+VERSION)
+	if req.Header.Get("Content-Type") != "" {
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	}
 
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	// set params ?a=b&b=c
 	//set Header

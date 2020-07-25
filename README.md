@@ -20,7 +20,7 @@ import "github.com/asmcos/requests"
 
 func main (){
 
-        resp,err := requests.Get("http://go.xiulian.net.cn")
+        resp,err := requests.Get("http://www.zhanluejia.net.cn")
         if err != nil{
           return
         }
@@ -135,7 +135,7 @@ func main (){
 ``` go
 req := requests.Requests()
 
-resp,err := req.Get("http://go.xiulian.net.cn",requests.Header{"Referer":"http://www.jeapedu.com"})
+resp,err := req.Get("http://www.zhanluejia.net.cn",requests.Header{"Referer":"http://www.jeapedu.com"})
 if (err == nil){
   println(resp.Text())
 }
@@ -146,7 +146,7 @@ if (err == nil){
 ``` go
 req := requests.Requests()
 req.Header.Set("accept-encoding", "gzip, deflate, br")
-resp,_ := req.Get("http://go.xiulian.net.cn",requests.Header{"Referer":"http://www.jeapedu.com"})
+resp,_ := req.Get("http://www.zhanluejia.net.cn",requests.Header{"Referer":"http://www.jeapedu.com"})
 println(resp.Text())
 
 ```
@@ -158,7 +158,7 @@ h := requests.Header{
   "Referer":         "http://www.jeapedu.com",
   "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
 }
-resp,_ := req.Get("http://go.xiulian.net.cn",h)
+resp,_ := req.Get("http://wwww.zhanluejia.net.cn",h)
 
 h2 := requests.Header{
   ...
@@ -166,7 +166,7 @@ h2 := requests.Header{
 }
 h3,h4 ....
 // two or more headers ...
-resp,_ = req.Get("http://go.xiulian.net.cn",h,h2,h3,h4)
+resp,_ = req.Get("http://www.zhanluejia.net.cn",h,h2,h3,h4)
 ```
 
 
