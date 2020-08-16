@@ -30,7 +30,6 @@ import (
 	"os"
 	"strings"
 	"time"
-
 )
 
 var VERSION string = "0.7"
@@ -335,7 +334,6 @@ func Post(origurl string, args ...interface{}) (resp *Response, err error) {
 	return resp, err
 }
 
-
 func PostJson(origurl string, args ...interface{}) (resp *Response, err error) {
 	req := Requests()
 
@@ -346,15 +344,12 @@ func PostJson(origurl string, args ...interface{}) (resp *Response, err error) {
 
 // POST requests
 
-
 func (req *Request) PostJson(origurl string, args ...interface{}) (resp *Response, err error) {
 
 	req.httpreq.Method = "POST"
 
 	req.Header.Add("Content-Type", "application/json")
 
-	//set Header
-	raw := "{}"
 	//reset Cookies,
 	//Client.Do can copy cookie from client.Jar to req.Header
 	delete(req.httpreq.Header, "Cookie")
@@ -368,16 +363,20 @@ func (req *Request) PostJson(origurl string, args ...interface{}) (resp *Respons
 				req.Header.Set(k, v)
 			}
 		case string:
-			raw = arg.(string)
+			req.setBodyRawBytes(ioutil.NopCloser(strings.NewReader(arg.(string))))
 		case Auth:
 			// a{username,password}
 			req.httpreq.SetBasicAuth(a[0], a[1])
+		default:
+			b := new(bytes.Buffer)
+			err = json.NewEncoder(b).Encode(a)
+			if err != nil {
+				return nil, err
+			}
+			req.setBodyRawBytes(ioutil.NopCloser(b))
 		}
 	}
 
-	if len(raw) > 0 {
-		req.setBodyRawBytes(raw) // set raw to body
-	}
 	//prepare to Do
 	URL, err := url.Parse(origurl)
 	if err != nil {
@@ -408,8 +407,6 @@ func (req *Request) PostJson(origurl string, args ...interface{}) (resp *Respons
 	return resp, nil
 }
 
-
-
 func (req *Request) Post(origurl string, args ...interface{}) (resp *Response, err error) {
 
 	req.httpreq.Method = "POST"
@@ -417,7 +414,6 @@ func (req *Request) Post(origurl string, args ...interface{}) (resp *Response, e
 	if req.Header.Get("Content-Type") != "" {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	}
-
 
 	// set params ?a=b&b=c
 	//set Header
@@ -500,16 +496,10 @@ func (req *Request) setBodyBytes(Forms url.Values) {
 	req.httpreq.ContentLength = int64(len(data))
 }
 
-
 // only set forms
-func (req *Request) setBodyRawBytes(raw string) {
-
-
-	req.httpreq.Body = ioutil.NopCloser(strings.NewReader(raw))
-	req.httpreq.ContentLength = int64(len(raw))
+func (req *Request) setBodyRawBytes(read io.ReadCloser) {
+	req.httpreq.Body = read
 }
-
-
 
 // upload file and form
 // build to body format

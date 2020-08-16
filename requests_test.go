@@ -2,10 +2,10 @@ package requests
 
 import (
 	"fmt"
+	"github.com/davecgh/go-spew/spew"
 	"net/http"
 	"os"
 	"testing"
-	"github.com/davecgh/go-spew/spew"
 )
 
 func TestGet(t *testing.T) {
@@ -122,7 +122,6 @@ func TestGet(t *testing.T) {
 		}
 	}
 
-
 }
 
 func TestPost(t *testing.T) {
@@ -161,7 +160,6 @@ func TestPost(t *testing.T) {
 		fmt.Println(resp.Text())
 	}
 
-
 	req = Requests()
 	cookie := &http.Cookie{}
 	cookie.Name = "postcookie"
@@ -194,21 +192,67 @@ func TestTimeout(t *testing.T) {
 
 }
 
-func TestPostGet(t *testing.T){
+func TestPostGet(t *testing.T) {
 
 	println("Test Post and Get")
 
-    client:= Requests()
-    client.Debug = 1
+	client := Requests()
+	client.Debug = 1
 
-    resp,err := client.Post("https://www.httpbin.org/post",Datas{"abc":"123","ddd":"789"})
+	resp, err := client.Post("https://www.httpbin.org/post", Datas{"abc": "123", "ddd": "789"})
 
 	spew.Dump(client)
 
-    resp,err =client.Get("https://www.httpbin.org/get")
-    if err!= nil{
-        fmt.Println(err)
-    }
-    fmt.Println(resp.Text())
+	resp, err = client.Get("https://www.httpbin.org/get")
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(resp.Text())
 
+}
+
+func TestPostJson(t *testing.T) {
+
+	type StructReq struct {
+		ContainerId string `json:"id"`
+		Worker      string `json:"worker"`
+		Force       bool   `json:"force"`
+	}
+
+	dataStruct := StructReq{
+		ContainerId: "123456",
+		Worker:      "worker1",
+		Force:       true,
+	}
+
+	dataMap := map[string]interface{}{
+		"id":     "123456",
+		"worker": "worker1",
+		"force":  true,
+	}
+
+	dataJsonStr := "{\"id\":\"123456\",\"worker\":\"worker1\",\"force\": true}"
+
+	println("Test PostJson")
+
+	client := Requests()
+	client.Debug = 1
+
+	resp, err := client.PostJson("https://www.httpbin.org/post", dataStruct)
+	if err != nil {
+		t.Fatalf("post struct json error: %v", err)
+	}
+	fmt.Println(resp.Text())
+
+	resp, err = client.PostJson("https://www.httpbin.org/post", dataMap)
+	if err != nil {
+		t.Fatalf("post struct json error: %v", err)
+	}
+	fmt.Println(resp.Text())
+
+	resp, err = client.PostJson("https://www.httpbin.org/post", dataJsonStr)
+	if err != nil {
+		t.Fatalf("post struct json error: %v", err)
+	}
+	fmt.Println(resp.Text())
 }
