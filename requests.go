@@ -57,7 +57,7 @@ type Files map[string]string // name ,filename
 // {username,password}
 type Auth []string
 
-func Requests() *Request {
+func New_Request() *Request {
 
 	req := new(Request)
 
@@ -80,6 +80,10 @@ func Requests() *Request {
 	req.Client.Jar = jar
 
 	return req
+}
+
+func Requests() *Request {
+	return New_Request()
 }
 
 // Get ,req.Get
@@ -349,6 +353,7 @@ func (req *Request) PostJson(origurl string, args ...interface{}) (resp *Respons
 	req.httpreq.Method = "POST"
 
 	req.Header.Add("Content-Type", "application/json")
+	params := []map[string]string{}
 
 	//reset Cookies,
 	//Client.Do can copy cookie from client.Jar to req.Header
@@ -367,6 +372,8 @@ func (req *Request) PostJson(origurl string, args ...interface{}) (resp *Respons
 		case Auth:
 			// a{username,password}
 			req.httpreq.SetBasicAuth(a[0], a[1])
+		case Params:
+			params = append(params, a)
 		default:
 			b := new(bytes.Buffer)
 			err = json.NewEncoder(b).Encode(a)
@@ -377,8 +384,9 @@ func (req *Request) PostJson(origurl string, args ...interface{}) (resp *Respons
 		}
 	}
 
+	disturl, _ := buildURLParams(origurl, params...)
 	//prepare to Do
-	URL, err := url.Parse(origurl)
+	URL, err := url.Parse(disturl)
 	if err != nil {
 		return nil, err
 	}

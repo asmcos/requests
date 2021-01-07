@@ -234,6 +234,7 @@ func TestPostJson(t *testing.T) {
 	dataJsonStr := "{\"id\":\"123456\",\"worker\":\"worker1\",\"force\": true}"
 
 	println("Test PostJson")
+	params := Params{"key": "authendickey"}
 
 	client := Requests()
 	client.Debug = 1
@@ -253,6 +254,12 @@ func TestPostJson(t *testing.T) {
 	resp, err = client.PostJson("https://www.httpbin.org/post", dataJsonStr)
 	if err != nil {
 		t.Fatalf("post struct json error: %v", err)
+	}
+	fmt.Println(resp.Text())
+
+	resp, err = client.PostJson("https://www.httpbin.org/post", params, dataJsonStr)
+	if err != nil {
+		t.Fatalf("post json with params error: %v", err)
 	}
 	fmt.Println(resp.Text())
 }
