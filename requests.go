@@ -411,9 +411,7 @@ func (req *Request) Post(origurl string, args ...interface{}) (resp *Response, e
 
 	req.httpreq.Method = "POST"
 
-	if req.Header.Get("Content-Type") != "" {
-		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	}
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	// set params ?a=b&b=c
 	//set Header
