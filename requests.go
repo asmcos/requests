@@ -32,7 +32,7 @@ import (
 	"time"
 )
 
-var VERSION string = "0.7"
+var VERSION string = "0.8"
 
 type Request struct {
 	httpreq *http.Request
@@ -142,6 +142,7 @@ func (req *Request) Get(origurl string, args ...interface{}) (resp *Response, er
 		return nil, err
 	}
 
+    defer res.Body.Close()
 	resp = &Response{}
 	resp.R = res
 	resp.req = req
@@ -400,6 +401,8 @@ func (req *Request) PostJson(origurl string, args ...interface{}) (resp *Respons
 		return nil, err
 	}
 
+    defer res.Body.Close()
+
 	resp = &Response{}
 	resp.R = res
 	resp.req = req
@@ -477,6 +480,8 @@ func (req *Request) Post(origurl string, args ...interface{}) (resp *Response, e
 		fmt.Println(err)
 		return nil, err
 	}
+
+    defer res.Body.Close()
 
 	resp = &Response{}
 	resp.R = res
