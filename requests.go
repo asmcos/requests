@@ -228,6 +228,11 @@ func (req *Request) SetTimeout(n time.Duration) {
 	req.Client.Timeout = time.Duration(n * time.Second)
 }
 
+
+func (req *Request) Close( ) {
+    req.httpreq.Close = true
+}
+
 func (req *Request) Proxy(proxyurl string) {
 
 	urli := url.URL{}

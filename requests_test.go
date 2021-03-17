@@ -124,6 +124,18 @@ func TestGet(t *testing.T) {
 
 }
 
+func TestClose(t *testing.T) {
+
+    req := Requests()
+    fmt.Println("Start 1000 times get test...")
+    for i:=0;i<1000;i++{
+        _,err := req.Post("http://localhost:1337/requests",Datas{"SrcIp":"4312"})
+        fmt.Printf("\r%d %v",i,err)
+        req.Close()
+    }
+
+    fmt.Println("1000 times get test end.")
+}
 func TestPost(t *testing.T) {
 
 	// example 1
