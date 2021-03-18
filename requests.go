@@ -142,10 +142,14 @@ func (req *Request) Get(origurl string, args ...interface{}) (resp *Response, er
 		return nil, err
 	}
 
-    defer res.Body.Close()
+
 	resp = &Response{}
 	resp.R = res
 	resp.req = req
+
+    resp.Content()
+	defer res.Body.Close()
+
 	resp.ResponseDebug()
 	return resp, nil
 }
@@ -268,8 +272,11 @@ func (resp *Response) ResponseDebug() {
 
 func (resp *Response) Content() []byte {
 
-	defer resp.R.Body.Close()
 	var err error
+
+    if len(resp.content) > 0{
+        return resp.content
+    }
 
 	var Body = resp.R.Body
 	if resp.R.Header.Get("Content-Encoding") == "gzip" && resp.req.Header.Get("Accept-Encoding") != "" {
@@ -406,11 +413,13 @@ func (req *Request) PostJson(origurl string, args ...interface{}) (resp *Respons
 		return nil, err
 	}
 
-    defer res.Body.Close()
 
 	resp = &Response{}
 	resp.R = res
 	resp.req = req
+
+    resp.Content()
+    defer res.Body.Close()
 	resp.ResponseDebug()
 	return resp, nil
 }
@@ -486,11 +495,14 @@ func (req *Request) Post(origurl string, args ...interface{}) (resp *Response, e
 		return nil, err
 	}
 
-    defer res.Body.Close()
 
 	resp = &Response{}
 	resp.R = res
 	resp.req = req
+
+    resp.Content()
+    defer res.Body.Close()
+
 	resp.ResponseDebug()
 	return resp, nil
 }
