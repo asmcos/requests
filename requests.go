@@ -361,7 +361,7 @@ func (req *Request) PostJson(origurl string, args ...interface{}) (resp *Respons
 
 	req.httpreq.Method = "POST"
 
-	req.Header.Add("Content-Type", "application/json")
+	req.Header.Set("Content-Type", "application/json")
 
 	//reset Cookies,
 	//Client.Do can copy cookie from client.Jar to req.Header
@@ -428,7 +428,8 @@ func (req *Request) Post(origurl string, args ...interface{}) (resp *Response, e
 
 	req.httpreq.Method = "POST"
 
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+    //set default
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	// set params ?a=b&b=c
 	//set Header
