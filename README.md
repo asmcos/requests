@@ -1,5 +1,5 @@
 
-[![license](http://dmlc.github.io/img/apache2.svg)](https://raw.githubusercontent.com/asmcos/requests/master/LICENSE)
+[![license](http://dmlc.github.io/img/apache2.svg)](https://raw.githubusercontent.com/ahuigo/requests/master/LICENSE)
 
 # requests
 
@@ -8,7 +8,7 @@ Requests is an HTTP library  , it is easy to use. Similar to Python requests.
 # Installation
 
 ```
-go get -u github.com/asmcos/requests
+go get -u github.com/ahuigo/requests
 ```
 
 # Start
@@ -16,7 +16,7 @@ go get -u github.com/asmcos/requests
 ``` go
 package main
 
-import "github.com/asmcos/requests"
+import "github.com/ahuigo/requests"
 
 func main (){
 
@@ -33,7 +33,7 @@ func main (){
 ``` go
 package main
 
-import "github.com/asmcos/requests"
+import "github.com/ahuigo/requests"
 
 
 func main (){
@@ -78,7 +78,7 @@ func main (){
 ``` go
 package main
 
-import "github.com/asmcos/requests"
+import "github.com/ahuigo/requests"
 
 
 func main (){
@@ -133,7 +133,7 @@ func main (){
 ### example 1
 
 ``` go
-req := requests.Requests()
+req := requests.Requests("GET")
 
 resp,err := req.Get("http://www.zhanluejia.net.cn",requests.Header{"Referer":"http://www.jeapedu.com"})
 if (err == nil){
@@ -144,7 +144,7 @@ if (err == nil){
 ### example 2
 
 ``` go
-req := requests.Requests()
+req := requests.Requests("GET")
 req.Header.Set("accept-encoding", "gzip, deflate, br")
 resp,_ := req.Get("http://www.zhanluejia.net.cn",requests.Header{"Referer":"http://www.jeapedu.com"})
 println(resp.Text())
@@ -158,7 +158,7 @@ h := requests.Header{
   "Referer":         "http://www.jeapedu.com",
   "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
 }
-resp,_ := req.Get("http://wwww.zhanluejia.net.cn",h)
+resp,_ := requests.Get("http://wwww.zhanluejia.net.cn",h)
 
 h2 := requests.Header{
   ...
@@ -178,7 +178,7 @@ p := requests.Params{
   "name":  "file",
   "id":    "12345",
 }
-resp,_ := req.Get("http://www.cpython.org", p)
+resp,_ := requests.Get("http://www.cpython.org", p)
 
 ```
 
@@ -188,23 +188,21 @@ resp,_ := req.Get("http://www.cpython.org", p)
 Test with the `correct` user information.
 
 ``` go
-req := requests.Requests()
-resp,_ := req.Get("https://api.github.com/user",requests.Auth{"asmcos","password...."})
+resp,_ := requests.Get("https://api.github.com/user",requests.Auth{"ahuigo","password...."})
 println(resp.Text())
 ```
 
 github return
 
 ```
-{"login":"asmcos","id":xxxxx,"node_id":"Mxxxxxxxxx==".....
+{"login":"ahuigo","id":xxxxx,"node_id":"Mxxxxxxxxx==".....
 ```
 
 # JSON
 
 ``` go
-req := requests.Requests()
 req.Header.Set("Content-Type","application/json")
-resp,_ = req.Get("https://httpbin.org/json")
+resp,_ = requests.Get("https://httpbin.org/json")
 
 var json map[string]interface{}
 resp.Json(&json)
@@ -218,18 +216,18 @@ for k,v := range json{
 # SetTimeout
 
 ```
-req := Requests()
+req := Requests("GET")
 req.Debug = 1
 
 // 20 Second
 req.SetTimeout(20)
-req.Get("http://golang.org")
+req.Run("http://golang.org")
 ```
 
 # Get Cookies
 
 ``` go
-resp,_ = req.Get("https://www.httpbin.org")
+resp,_ = requests.Get("https://www.httpbin.org")
 coo := resp.Cookies()
 // coo is [] *http.Cookies
 println("********cookies*******")

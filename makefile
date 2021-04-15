@@ -1,2 +1,2 @@
 test:
-	go test requests_test.go requests.go
+	go test -v requests_test.go requests.go

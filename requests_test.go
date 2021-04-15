@@ -2,19 +2,20 @@ package requests
 
 import (
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
 	"net/http"
 	"os"
 	"testing"
+
+	"github.com/davecgh/go-spew/spew"
 )
 
 func TestGet(t *testing.T) {
 	// example 1
 	println("Get example1")
-	req := Requests()
+	req := Requests("get")
 
 	req.Header.Set("accept-encoding", "gzip, deflate, br")
-	req.Get("http://www.zhanluejia.net.cn", Header{"Referer": "http://www.jeapedu.com"}, Params{"c": "d", "e": "f"}, Params{"c": "a"})
+	req.SetMethod("GET").Run("http://www.zhanluejia.net.cn", Header{"Referer": "http://www.jeapedu.com"}, Params{"c": "d", "e": "f"}, Params{"c": "a"})
 
 	// example 2
 	println("Get example2")
@@ -32,7 +33,7 @@ func TestGet(t *testing.T) {
 		"name":  "file",
 		"id":    "12345",
 	}
-	resp, err := Requests().Get("http://www.cpython.org", p)
+	resp, err := Get("http://www.cpython.org", p)
 
 	if err == nil {
 		resp.Text()
@@ -43,8 +44,8 @@ func TestGet(t *testing.T) {
 	println("Get example4")
 	// test authentication usernae,password
 	//documentation https://www.httpwatch.com/httpgallery/authentication/#showExample10
-	req = Requests()
-	resp, err = req.Get("https://www.httpwatch.com/httpgallery/authentication/authenticatedimage/default.aspx?0.45874470316137206", Auth{"httpwatch", "foo"})
+	req = Requests("GET")
+	resp, err = req.Run("https://www.httpwatch.com/httpgallery/authentication/authenticatedimage/default.aspx?0.45874470316137206", Auth{"httpwatch", "foo"})
 	if err == nil {
 		fmt.Println(resp.R)
 	}
@@ -53,9 +54,9 @@ func TestGet(t *testing.T) {
 
 	//example 5 test Json
 	println("Get example5")
-	req = Requests()
+	req = Requests("GET")
 	req.Header.Set("Content-Type", "application/json")
-	resp, err = req.Get("https://httpbin.org/json")
+	resp, err = req.SetMethod("GET").Run("https://httpbin.org/json")
 
 	if err == nil {
 		var json map[string]interface{}
@@ -68,35 +69,35 @@ func TestGet(t *testing.T) {
 
 	// example 6 test gzip
 	println("Get example6")
-	req = Requests()
+	req = Requests("get")
 	req.Debug = 1
-	resp, err = req.Get("https://httpbin.org/gzip")
+	resp, err = req.Run("https://httpbin.org/gzip")
 	if err == nil {
 		fmt.Println(resp.Text())
 	}
 	// example 7 proxy and debug
 	println("Get example7")
-	req = Requests()
+	req = Requests("get")
 	req.Debug = 1
 
 	// You need open the line
 	//req.Proxy("http://192.168.1.190:8888")
 
-	req.Get("https://www.sina.com.cn")
+	req.Run("https://www.sina.com.cn")
 
 	//example 8 test  auto Cookies
 	println("Get example8")
-	req = Requests()
+	req = Requests("get")
 	req.Debug = 1
 	// req.Proxy("http://192.168.1.190:8888")
-	req.Get("https://www.httpbin.org/cookies/set?freeform=1234")
-	req.Get("https://www.httpbin.org")
-	req.Get("https://www.httpbin.org/cookies/set?a=33d")
-	req.Get("https://www.httpbin.org")
+	req.Run("https://www.httpbin.org/cookies/set?freeform=1234")
+	req.Run("https://www.httpbin.org")
+	req.Run("https://www.httpbin.org/cookies/set?a=33d")
+	req.Run("https://www.httpbin.org")
 
 	// example 9 test AddCookie
 	println("Get example9")
-	req = Requests()
+	req = Requests("get")
 	req.Debug = 1
 
 	cookie := &http.Cookie{}
@@ -108,10 +109,10 @@ func TestGet(t *testing.T) {
 
 	fmt.Println(req.Cookies)
 	// req.Proxy("http://127.0.0.1:8888")
-	req.Get("https://www.httpbin.org/cookies/set?freeform=1234")
-	req.Get("https://www.httpbin.org")
-	req.Get("https://www.httpbin.org/cookies/set?a=33d")
-	resp, err = req.Get("https://www.httpbin.org")
+	req.Run("https://www.httpbin.org/cookies/set?freeform=1234")
+	req.Run("https://www.httpbin.org")
+	req.Run("https://www.httpbin.org/cookies/set?a=33d")
+	resp, err = req.SetMethod("GET").Run("https://www.httpbin.org")
 
 	if err == nil {
 		coo := resp.Cookies()
@@ -126,22 +127,22 @@ func TestGet(t *testing.T) {
 
 func TestClose(t *testing.T) {
 
-    req := Requests()
-    fmt.Println("Start 1000 times get test...")
-    for i:=0;i<1000;i++{
-        _,err := req.Post("http://localhost:1337/requests",Datas{"SrcIp":"4312"})
-        fmt.Printf("\r%d %v",i,err)
-        req.Close()
-    }
+	req := Requests("GET")
+	fmt.Println("Start 1000 times get test...")
+	for i := 0; i < 1000; i++ {
+		_, err := req.SetMethod("POST").Run("http://localhost:1337/requests", Datas{"SrcIp": "4312"})
+		fmt.Printf("\r%d %v", i, err)
+		req.Close()
+	}
 
-    fmt.Println("1000 times get test end.")
+	fmt.Println("1000 times get test end.")
 }
 func TestPost(t *testing.T) {
 
 	// example 1
 	// set post formdata
 	println("Post example1")
-	req := Requests()
+	req := Requests("GET")
 	req.Debug = 1
 
 	data := Datas{
@@ -154,25 +155,25 @@ func TestPost(t *testing.T) {
 		"topping":   "bacon",
 	}
 
-	resp, err := req.Post("https://www.httpbin.org/post", data)
+	resp, err := req.SetMethod("POST").Run("https://www.httpbin.org/post", data)
 	if err == nil {
 		fmt.Println(resp.Text())
 	}
 
 	//example 2 upload files
 	println("Post example2")
-	req = Requests()
+	req = Requests("GET")
 	req.Debug = 1
 	path, _ := os.Getwd()
 	path1 := path + "/README.md"
 	path2 := path + "/docs/index.md"
 
-	resp, err = req.Post("https://www.httpbin.org/post", data, Files{"a": path1, "b": path2})
+	resp, err = req.SetMethod("POST").Run("https://www.httpbin.org/post", data, Files{"a": path1, "b": path2})
 	if err == nil {
 		fmt.Println(resp.Text())
 	}
 
-	req = Requests()
+	req = Requests("GET")
 	cookie := &http.Cookie{}
 	cookie.Name = "postcookie"
 	cookie.Value = "20200725"
@@ -181,7 +182,7 @@ func TestPost(t *testing.T) {
 	req.SetCookie(cookie)
 
 	//test post cookies
-	resp, err = req.Post("https://www.httpbin.org/post", data)
+	resp, err = req.SetMethod("POST").Run("https://www.httpbin.org/post", data)
 	if err == nil {
 		coo := resp.Cookies()
 		// coo is [] *http.Cookies
@@ -195,12 +196,12 @@ func TestPost(t *testing.T) {
 
 func TestTimeout(t *testing.T) {
 	println("Timeout example1")
-	req := Requests()
+	req := Requests("GET")
 	req.Debug = 1
 
 	// 20 Second
 	req.SetTimeout(20)
-	req.Get("http://golang.org")
+	req.SetMethod("GET").Run("http://golang.org")
 
 }
 
@@ -208,14 +209,18 @@ func TestPostGet(t *testing.T) {
 
 	println("Test Post and Get")
 
-	client := Requests()
+	client := Requests("GET")
 	client.Debug = 1
 
-	resp, err := client.Post("https://www.httpbin.org/post", Datas{"abc": "123", "ddd": "789"})
+	resp, err := Post("https://www.httpbin.org/post", Datas{"abc": "123", "ddd": "789"})
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(resp.Text())
 
 	spew.Dump(client)
 
-	resp, err = client.Get("https://www.httpbin.org/get")
+	resp, err = Get("https://www.httpbin.org/get")
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -247,22 +252,22 @@ func TestPostJson(t *testing.T) {
 
 	println("Test PostJson")
 
-	client := Requests()
+	client := Requests("GET")
 	client.Debug = 1
 
-	resp, err := client.PostJson("https://www.httpbin.org/post", dataStruct)
+	resp, err := client.Run("https://www.httpbin.org/post", dataStruct)
 	if err != nil {
 		t.Fatalf("post struct json error: %v", err)
 	}
 	fmt.Println(resp.Text())
 
-	resp, err = client.PostJson("https://www.httpbin.org/post", dataMap)
+	resp, err = client.Run("https://www.httpbin.org/post", dataMap)
 	if err != nil {
 		t.Fatalf("post struct json error: %v", err)
 	}
 	fmt.Println(resp.Text())
 
-	resp, err = client.PostJson("https://www.httpbin.org/post", dataJsonStr)
+	resp, err = client.Run("https://www.httpbin.org/post", dataJsonStr)
 	if err != nil {
 		t.Fatalf("post struct json error: %v", err)
 	}
