@@ -1,6 +1,6 @@
 package main
 
-import "github.com/asmcos/requests"
+import "github.com/ahuigo/requests"
 
 
 func main (){

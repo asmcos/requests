@@ -1,10 +1,10 @@
 package main
 
-import "github.com/asmcos/requests"
+import "github.com/ahuigo/requests"
 
 
 func main (){
 
-        resp,_ := requests.Get("http://go.xiulian.net.cn")
+        resp,_ := requests.Get("https://www.baidu.com/")
         println(resp.Text())
 }

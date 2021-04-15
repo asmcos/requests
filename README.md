@@ -235,3 +235,8 @@ for _, c:= range coo{
   fmt.Println(c.Name,c.Value)
 }
 ```
+
+# Thanks
+This project is inspired by [github.com/asmcos/requests](http://github.com/asmcos/requests). 
+
+Great thanks to it :).
