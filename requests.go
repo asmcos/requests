@@ -206,7 +206,7 @@ func (resp *Response) ResponseDebug() {
 
 func (resp *Response) Content() []byte {
 	var err error
-	if len(resp.content) > 0 {
+	if resp.content!=nil {
 		return resp.content
 	}
 	defer resp.R.Body.Close()
