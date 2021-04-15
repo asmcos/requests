@@ -133,9 +133,7 @@ func main (){
 ### example 1
 
 ``` go
-req := requests.Requests("GET")
-
-resp,err := req.Get("http://www.zhanluejia.net.cn",requests.Header{"Referer":"http://www.jeapedu.com"})
+resp,err := requests.Get("http://www.zhanluejia.net.cn",requests.Header{"Referer":"http://www.jeapedu.com"})
 if (err == nil){
   println(resp.Text())
 }
@@ -146,7 +144,7 @@ if (err == nil){
 ``` go
 req := requests.Requests("GET")
 req.Header.Set("accept-encoding", "gzip, deflate, br")
-resp,_ := req.Get("http://www.zhanluejia.net.cn",requests.Header{"Referer":"http://www.jeapedu.com"})
+resp,_ := req.Run("http://www.zhanluejia.net.cn",requests.Header{"Referer":"http://www.jeapedu.com"})
 println(resp.Text())
 
 ```
