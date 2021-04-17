@@ -13,107 +13,55 @@ go get -u github.com/ahuigo/requests
 
 # Start
 
-``` go
-package main
+## Get
 
-import "github.com/ahuigo/requests"
-
-func main (){
-
-        resp,err := requests.Get("http://www.zhanluejia.net.cn")
-        if err != nil{
-          return
+    var json map[string]interface{}
+    resp, err := requests.Get("https://httpbin.org/json")
+    if err == nil {
+        resp.Json(&json)
+        for k, v := range json {
+            fmt.Println(k, v)
         }
-        println(resp.Text())
-}
-```
+    }
 
 ## Post
 
-``` go
-package main
+### PostJson
+    data := requests.Datas{
+        "comments": "ew",
+    }
+    // json := requests.Json{ "key": "value"}
+    json = map[string]interface{}{
+        "key": "value",
+    }
+    resp, err := requests.Post("https://www.httpbin.org/post", data, json)
+    if err == nil {
+        fmt.Println(resp.Text())
+    }
 
-import "github.com/ahuigo/requests"
+### PostString
 
+    dataStr := "{\"key\":\"This is raw data\"}"
+    resp, err := requests.Post("https://www.httpbin.org/post", dataStr)
+    if err == nil {
+        fmt.Println(resp.Text())
+    }
 
-func main (){
+### PostFiles
 
-        data := requests.Datas{
-          "name":"requests_post_test",
-        }
-        resp,_ := requests.Post("https://www.httpbin.org/post",data)
-        println(resp.Text())
-}
+	path, _ := os.Getwd()
+	req := requests.Requests("GET").SetDebug(true)
 
-```
-
-     Server return data...
-
-``` json
-{
-  "args": {},
-  "data": "",
-  "files": {},
-  "form": {
-    "name": "requests_post_test"
-  },
-  "headers": {
-    "Accept-Encoding": "gzip",
-    "Connection": "close",
-    "Content-Length": "23",
-    "Content-Type": "application/x-www-form-urlencoded",
-    "Host": "www.httpbin.org",
-    "User-Agent": "Go-Requests 0.5"
-  },
-  "json": null,
-  "origin": "114.242.34.110",
-  "url": "https://www.httpbin.org/post"
-}
-
-```
-
-
-## PostJson
-
-``` go
-package main
-
-import "github.com/ahuigo/requests"
-
-
-func main (){
-
-        jsonStr := "{\"name\":\"requests_post_test\"}"
-        resp,_ := requests.PostJson("https://www.httpbin.org/post",jsonStr)
-        println(resp.Text())
-}
-
-```
-
-     Server return data...
-
-``` json
-{
-  "args": {},
-  "data": "",
-  "files": {},
-  "form": {
-    "name": "requests_post_test"
-  },
-  "headers": {
-    "Accept-Encoding": "gzip",
-    "Connection": "close",
-    "Content-Length": "23",
-    "Content-Type": "application/x-www-form-urlencoded",
-    "Host": "www.httpbin.org",
-    "User-Agent": "Go-Requests 0.5"
-  },
-  "json": null,
-  "origin": "114.242.34.110",
-  "url": "https://www.httpbin.org/post"
-}
-
-```
+	resp, err := req.SetMethod("POST").Run(
+		"https://www.httpbin.org/post",
+		requests.Files{
+            "file1": path + "/README.md",
+            "file2": path + "/version",
+        },
+	)
+	if err == nil {
+		fmt.Println(resp.Text())
+	}
 
 # Feature Support
   - Set headers

@@ -36,7 +36,7 @@ type Request struct {
 	httpreq *http.Request
 	Header  *http.Header
 	Client  *http.Client
-	Debug   int
+	debug   bool
 	Cookies []*http.Cookie
 }
 
@@ -49,10 +49,10 @@ type Response struct {
 
 type Header map[string]string
 type Params map[string]string
-type Datas map[string]string      // for post form
-type Jsons map[string]interface{} // for Json
-type AnyData interface{}          // for AnyData
-type Files map[string]string      // name ,filename
+type Datas map[string]string     // for post form
+type Json map[string]interface{} // for Json
+type Files map[string]string     // name ,filename
+// type AnyData interface{}         // for AnyData
 
 // Auth - {username,password}
 type Auth []string
@@ -121,9 +121,14 @@ func addQueryParams(parsedURL *url.URL, parsedQuery url.Values) string {
 	return strings.Replace(parsedURL.String(), "?"+parsedURL.RawQuery, "", -1)
 }
 
+func (req *Request) SetDebug(debug bool) *Request {
+	req.debug = debug
+	return req
+}
+
 func (req *Request) RequestDebug() {
 
-	if req.Debug != 1 {
+	if req.debug {
 		return
 	}
 
@@ -146,8 +151,9 @@ func (req *Request) RequestDebug() {
 // cookies
 // cookies only save to Client.Jar
 // req.Cookies is temporary
-func (req *Request) SetCookie(cookie *http.Cookie) {
+func (req *Request) SetCookie(cookie *http.Cookie) *Request {
 	req.Cookies = append(req.Cookies, cookie)
+	return req
 }
 
 func (req *Request) ClearCookies() {
@@ -166,8 +172,9 @@ func (req *Request) ClientSetCookies() {
 }
 
 // set timeout s = second
-func (req *Request) SetTimeout(n time.Duration) {
+func (req *Request) SetTimeout(n time.Duration) *Request {
 	req.Client.Timeout = time.Duration(n * time.Second)
+	return req
 }
 
 func (req *Request) Close() {
@@ -189,7 +196,7 @@ func (req *Request) Proxy(proxyurl string) {
 
 /**************/
 func (resp *Response) ResponseDebug() {
-	if resp.req.Debug != 1 {
+	if resp.req.debug {
 		return
 	}
 
@@ -206,7 +213,7 @@ func (resp *Response) ResponseDebug() {
 
 func (resp *Response) Content() []byte {
 	var err error
-	if resp.content!=nil {
+	if resp.content != nil {
 		return resp.content
 	}
 	defer resp.R.Body.Close()
@@ -300,6 +307,7 @@ func (req *Request) cleanup() {
 	req.httpreq.Body = nil
 	req.httpreq.GetBody = nil
 	req.httpreq.ContentLength = 0
+	req.Header = &http.Header{}
 	//reset Cookies,
 	//Client.Do can copy cookie from client.Jar to req.Header
 	delete(req.httpreq.Header, "Cookie")
@@ -341,14 +349,18 @@ func (req *Request) Run(origurl string, args ...interface{}) (resp *Response, er
 		case Auth:
 			req.httpreq.SetBasicAuth(a[0], a[1])
 		case string:
-			contentType = "application/text"
 			bodyBytes = []byte(a)
+		case Json:
+			contentType = "application/json"
+			bodyBytes = req.buildJSON(a)
 		default:
 			contentType = "application/json"
 			bodyBytes = req.buildJSON(a)
 		}
 	}
-	req.Header.Add("Content-Type", contentType)
+	if req.Header.Get("Content-Type") == "" {
+		req.Header.Set("Content-Type", contentType)
+	}
 
 	disturl, _ := buildURLParams(origurl, params...)
 
