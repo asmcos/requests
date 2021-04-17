@@ -1,9 +1,8 @@
-
+# Requests
 [![license](http://dmlc.github.io/img/apache2.svg)](https://raw.githubusercontent.com/ahuigo/requests/master/LICENSE)
 
 # requests
-
-Requests is an HTTP library  , it is easy to use. Similar to Python requests.
+Requests is an HTTP library, it is easy to use. Similar to Python requests.
 
 # Installation
 
@@ -78,109 +77,41 @@ go get -u github.com/ahuigo/requests
 
 # Set header
 
-### example 1
+    func TestGetParamsHeaders(t *testing.T) {
+        println("Test Get: custom header and params")
+        requests.Get("http://www.zhanluejia.net.cn",
+            requests.Header{"Referer": "http://www.jeapedu.com"},
+            requests.Params{"page": "1", "size": "20"},
+            requests.Params{"name": "ahuio"},
+        )
+    }
 
-``` go
-resp,err := requests.Get("http://www.zhanluejia.net.cn",requests.Header{"Referer":"http://www.jeapedu.com"})
-if (err == nil){
-  println(resp.Text())
-}
-```
+    func TestGetParamsHeaders2(t *testing.T) {
+        req := requests.Requests("get")
+        req.SetHeader("accept-encoding", "gzip, deflate, br")
+        req.Run("http://www.zhanluejia.net.cn",
+            requests.Params{"page": "1", "size": "20"},
+            requests.Params{"name": "ahuio"},
+        )
+    }
 
-### example 2
+    func TestResponseHeader(t *testing.T) {
+        resp, _ := requests.Get("https://www.baidu.com/")
+        println(resp.Text())
+        println(resp.R.Header.Get("location"))
+        println(resp.R.Header.Get("Location"))
+    }
 
-``` go
-req := requests.Requests("GET")
-req.Header.Set("accept-encoding", "gzip, deflate, br")
-resp,_ := req.Run("http://www.zhanluejia.net.cn",requests.Header{"Referer":"http://www.jeapedu.com"})
-println(resp.Text())
+two or more headers ...
 
-```
-
-### example 3
-
-``` go
-h := requests.Header{
-  "Referer":         "http://www.jeapedu.com",
-  "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
-}
-resp,_ := requests.Get("http://wwww.zhanluejia.net.cn",h)
-
-h2 := requests.Header{
-  ...
-  ...
-}
-h3,h4 ....
-// two or more headers ...
-resp,_ = req.Get("http://www.zhanluejia.net.cn",h,h2,h3,h4)
-```
-
-
-# Set params
-
-``` go
-p := requests.Params{
-  "title": "The blog",
-  "name":  "file",
-  "id":    "12345",
-}
-resp,_ := requests.Get("http://www.cpython.org", p)
-
-```
-
-
-# Auth
-
-Test with the `correct` user information.
-
-``` go
-resp,_ := requests.Get("https://api.github.com/user",requests.Auth{"ahuigo","password...."})
-println(resp.Text())
-```
-
-github return
-
-```
-{"login":"ahuigo","id":xxxxx,"node_id":"Mxxxxxxxxx==".....
-```
-
-# JSON
-
-``` go
-req.Header.Set("Content-Type","application/json")
-resp,_ = requests.Get("https://httpbin.org/json")
-
-var json map[string]interface{}
-resp.Json(&json)
-
-for k,v := range json{
-  fmt.Println(k,v)
-}
-```
-
-
-# SetTimeout
-
-```
-req := Requests("GET")
-req.Debug = 1
-
-// 20 Second
-req.SetTimeout(20)
-req.Run("http://golang.org")
-```
-
-# Get Cookies
-
-``` go
-resp,_ = requests.Get("https://www.httpbin.org")
-coo := resp.Cookies()
-// coo is [] *http.Cookies
-println("********cookies*******")
-for _, c:= range coo{
-  fmt.Println(c.Name,c.Value)
-}
-```
+    headers1 := requests.Header{"Referer": "http://www.jeapedu.com"},
+    ....
+    resp,_ = req.Get(
+        "http://www.zhanluejia.net.cn",
+        headers1,
+        headers2,
+        headers3,
+    )
 
 # Thanks
 This project is inspired by [github.com/asmcos/requests](http://github.com/asmcos/requests). 

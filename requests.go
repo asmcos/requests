@@ -320,6 +320,12 @@ func (req *Request) SetMethod(method string) *Request {
 	return req
 }
 
+// SetHeader
+func (req *Request) SetHeader(key, value string) *Request {
+	req.Header.Set(key, value)
+	return req
+}
+
 // Post -
 func (req *Request) Run(origurl string, args ...interface{}) (resp *Response, err error) {
 	// cleanup
