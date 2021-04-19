@@ -32,7 +32,6 @@ func TestGetParamsHeaders2(t *testing.T) {
 	req := requests.Requests("get")
 	req.SetHeader("accept-encoding", "gzip, deflate, br")
 	req.Run("http://www.zhanluejia.net.cn",
-		requests.Header{"Referer": "http://www.jeapedu.com"},
 		requests.Params{"page": "1", "size": "20"},
 		requests.Params{"name": "ahuio"},
 	)
