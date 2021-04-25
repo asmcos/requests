@@ -10,10 +10,9 @@ import (
 )
 
 func TestPostFile(t *testing.T) {
-	req := requests.Requests("GET").SetDebug(true)
 	path, _ := os.Getwd()
 
-	resp, err := req.SetMethod("POST").Run(
+	resp, err := requests.Post(
 		"https://www.httpbin.org/post",
 		requests.Files{
 			"file1": path + "/README.md",

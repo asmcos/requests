@@ -28,13 +28,21 @@ import (
 	"time"
 )
 
+var respHandler func(*Response)
+
+// SetRespHandler
+func SetRespHandler(fn func(*Response)) {
+	respHandler = fn
+}
+
 type Request struct {
 	httpreq     *http.Request
-	Header      *http.Header
 	Client      *http.Client
 	debug       bool
 	respHandler func(*Response)
-	Cookies     []*http.Cookie
+	// global header
+	Header  *http.Header
+	Cookies []*http.Cookie
 }
 
 type Header map[string]string
@@ -49,14 +57,13 @@ type Auth []string
 
 // Requests
 // @params method  GET|POST|PUT|DELETE|PATCH
-func Requests(method string) *Request {
+func Requests() *Request {
 
 	req := new(Request)
 	req.reset()
 
 	req.Client = &http.Client{}
 
-	// auto with Cookies
 	// cookiejar.New source code return jar, nil
 	jar, _ := cookiejar.New(nil)
 
@@ -143,7 +150,7 @@ func (req *Request) Proxy(proxyurl string) {
 	}
 }
 
-// cleanup
+// cleanup delete
 func (req *Request) cleanup() {
 	req.httpreq.Body = nil
 	req.httpreq.GetBody = nil
@@ -193,7 +200,7 @@ func (req *Request) Run(origurl string, args ...interface{}) (resp *Response, er
 		// arg is Header , set to request header
 		case Header:
 			for k, v := range a {
-				req.Header.Set(k, v)
+				req.httpreq.Header.Set(k, v)
 			}
 		case Params:
 			params = append(params, a)
@@ -213,8 +220,8 @@ func (req *Request) Run(origurl string, args ...interface{}) (resp *Response, er
 			bodyBytes = req.buildJSON(a)
 		}
 	}
-	if req.Header.Get("Content-Type") == "" {
-		req.Header.Set("Content-Type", contentType)
+	if req.httpreq.Header.Get("Content-Type") == "" {
+		req.httpreq.Header.Set("Content-Type", contentType)
 	}
 
 	disturl, _ := buildURLParams(origurl, params...)
@@ -250,10 +257,14 @@ func (req *Request) Run(origurl string, args ...interface{}) (resp *Response, er
 
 	resp = &Response{}
 	resp.R = res
-	resp.req = req
+	req_dup := *req
+	resp.req = &req_dup
 	resp.ResponseDebug()
 	resp.Content()
 	req.reset()
+	if respHandler != nil {
+		respHandler(resp)
+	}
 	if req.respHandler != nil {
 		req.respHandler(resp)
 	}
@@ -327,4 +338,9 @@ func (req *Request) buildJSON(data interface{}) []byte {
 
 	// fmt.Printf("a1=%#v,jsons=%#v\nahui\n", data, string(jsonBytes))
 	return jsonBytes
+}
+
+func (req *Request) SetDebug(debug bool) *Request {
+	req.debug = debug
+	return req
 }

@@ -11,9 +11,9 @@ import (
 
 func TestClose(t *testing.T) {
 	fmt.Println("Test Close")
-	req := requests.Requests("POST")
+	req := requests.Requests()
 	for i := 0; i < 1000; i++ {
-		_, err := req.Run(
+		_, err := req.Post(
 			"http://localhost:1337/requests",
 			requests.Datas{"SrcIp": "4312"})
 		fmt.Printf("\r%d %v", i, err)
@@ -25,6 +25,6 @@ func TestClose(t *testing.T) {
 }
 func TestTimeout(t *testing.T) {
 	println("Test Timeout")
-	req := requests.Requests("GET").SetTimeout(20)
-	req.SetMethod("GET").Run("http://golang.org")
+	req := requests.Requests().SetTimeout(20)
+	req.Get("http://golang.org")
 }

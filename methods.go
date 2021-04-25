@@ -15,30 +15,30 @@ package requests
 /**************post/get/delete/patch*************************/
 func Get(origurl string, args ...interface{}) (resp *Response, err error) {
 	// call request Get
-	resp, err = Requests("GET").Run(origurl, args...)
+	resp, err = Requests().Get(origurl, args...)
 	return resp, err
 }
 
 func Post(origurl string, args ...interface{}) (resp *Response, err error) {
-	resp, err = Requests("POST").Run(origurl, args...)
+	resp, err = Requests().Post(origurl, args...)
 	return
 }
 
 // Put
 func Put(origurl string, args ...interface{}) (resp *Response, err error) {
-	resp, err = Requests("PUT").Run(origurl, args...)
+	resp, err = Requests().Put(origurl, args...)
 	return
 }
 
 // Delete
 func Delete(origurl string, args ...interface{}) (resp *Response, err error) {
-	resp, err = Requests("DELETE").Run(origurl, args...)
+	resp, err = Requests().Delete(origurl, args...)
 	return
 }
 
 // Patch
 func Patch(origurl string, args ...interface{}) (resp *Response, err error) {
-	resp, err = Requests("PATCH").Run(origurl, args...)
+	resp, err = Requests().Patch(origurl, args...)
 	return
 }
 
@@ -57,6 +57,12 @@ func (req *Request) Delete(origurl string, args ...interface{}) (resp *Response,
 	resp, err = req.Run(origurl, args...)
 	return resp, err
 }
+func (req *Request) Put(origurl string, args ...interface{}) (resp *Response, err error) {
+	req.httpreq.Method = "PUT"
+	resp, err = req.Run(origurl, args...)
+	return resp, err
+}
+
 func (req *Request) Patch(origurl string, args ...interface{}) (resp *Response, err error) {
 	req.httpreq.Method = "PATCH"
 	resp, err = req.Run(origurl, args...)

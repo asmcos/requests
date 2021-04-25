@@ -57,8 +57,3 @@ func addQueryParams(parsedURL *url.URL, parsedQuery url.Values) string {
 	}
 	return strings.Replace(parsedURL.String(), "?"+parsedURL.RawQuery, "", -1)
 }
-
-func (req *Request) SetDebug(debug bool) *Request {
-	req.debug = debug
-	return req
-}

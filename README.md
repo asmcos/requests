@@ -29,14 +29,17 @@ go get -u github.com/ahuigo/requests
     data := requests.Datas{
         "comments": "ew",
     }
-    // json := requests.Json{ "key": "value"}
-    json = map[string]interface{}{
+    json := map[string]interface{}{
         "key": "value",
     }
     resp, err := requests.Post("https://www.httpbin.org/post", data, json)
     if err == nil {
         fmt.Println(resp.Text())
     }
+
+You can use json builder instead:
+
+    json := requests.Json{ "key": "value"}
 
 ### PostString
 
@@ -49,9 +52,9 @@ go get -u github.com/ahuigo/requests
 ### PostFiles
 
 	path, _ := os.Getwd()
-	req := requests.Requests("GET").SetDebug(true)
+	req := requests.Requests()
 
-	resp, err := req.SetMethod("POST").Run(
+	resp, err := req.SetDebug(true).Post(
 		"https://www.httpbin.org/post",
 		requests.Files{
             "file1": path + "/README.md",
@@ -61,6 +64,33 @@ go get -u github.com/ahuigo/requests
 	if err == nil {
 		fmt.Println(resp.Text())
 	}
+
+## Request Options
+### SetTimeout and debug
+
+    req := Requests()
+    req.Debug = 1
+
+    // 20 Second
+    req.SetTimeout(20)
+    req.Get("http://golang.org")
+
+### Set Authentication
+    req := requests.Requests()
+    resp,_ := req.Get("https://api.github.com/user",requests.Auth{"asmcos","password...."})
+
+### Set Cookie
+	cookie1 := http.Cookie{Name: "cookie_name", Value: "cookie_value"}
+    req.SetCookie(&cookie1)
+
+## Response
+### Get Cookies
+
+    resp,_ = req.Get("https://www.httpbin.org")
+    coo := resp.Cookies()
+    for _, c:= range coo{
+        fmt.Println(c.Name,c.Value)
+    }
 
 # Feature Support
   - Set headers
