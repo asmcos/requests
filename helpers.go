@@ -13,10 +13,8 @@ var VERSION string = "v0.0.0"
 
 func init() {
 	_, filename, _, _ := runtime.Caller(0)
-	println("filename:" + filename)
 	versionFile := path.Dir(filename) + "/version"
 	version, _ := ioutil.ReadFile(versionFile)
-	println("version:" + string(version))
 	VERSION = string(version)
 }
 
