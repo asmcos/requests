@@ -85,10 +85,10 @@ func (req *Request) reset() {
 }
 
 func (req *Request) RequestDebug() {
-	if req.debug {
+	if !req.debug {
 		return
 	}
-	fmt.Println("===========Go RequestDebug ============")
+	fmt.Println("===========Go RequestDebug !============")
 
 	message, err := httputil.DumpRequestOut(req.httpreq, false)
 	if err != nil {
@@ -251,7 +251,6 @@ func (req *Request) Run(origurl string, args ...interface{}) (resp *Response, er
 	res, err := req.Client.Do(req.httpreq)
 
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 
