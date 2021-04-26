@@ -30,7 +30,7 @@ type Response struct {
 }
 
 func (resp *Response) ResponseDebug() {
-	if resp.req.debug {
+	if !resp.req.debug {
 		return
 	}
 	fmt.Println("===========Go ResponseDebug ============")
