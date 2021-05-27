@@ -8,26 +8,56 @@ import (
 	_ "github.com/ahuigo/requests/init"
 )
 
-func TestPostJson(t *testing.T) {
-	println("Test POST: post data and json")
-	data := requests.Datas{
-		"comments": "ew",
+
+// Post params
+func TestPostParams(t *testing.T) {
+	println("Test POST: post params")
+	data := requests.Params{
+		"name": "ahuigo",
 	}
-	json := requests.Json{
-		"key": "value",
-	}
-	json = map[string]interface{}{
-		"key": "value",
-	}
-	resp, err := requests.Post("https://www.httpbin.org/post", data, json)
+	resp, err := requests.Post("https://www.httpbin.org/post", data)
 	if err == nil {
 		fmt.Println(resp.Text())
 	}
 }
+
+// Post Form Request
+func TestPostForm(t *testing.T) {
+	println("Test POST: post form data")
+	data := requests.Datas{
+		"comments": "ew",
+	}
+	resp, err := requests.Post("https://www.httpbin.org/post", data)
+	if err == nil {
+		fmt.Println(resp.Text())
+	}
+}
+
+
+// Post Json Request
+func TestPostJson(t *testing.T) {
+	println("Test POST: post json data")
+	json := requests.Json{
+		"key": "value",
+	}
+    //it still works! 
+	json = map[string]interface{}{
+		"key": "value",
+	}
+	resp, err := requests.Post("https://www.httpbin.org/post", json)
+	if err == nil {
+		fmt.Println(resp.Text())
+	}
+}
+
+
+// Post Raw Text
 func TestPostString(t *testing.T) {
 	println("Test POST: post data and json")
-	dataStr := "{\"key\":\"This is raw data\"}"
-	resp, err := requests.Post("https://www.httpbin.org/post", dataStr)
+    rawText := "raw data: Hi, Jack!"
+	resp, err := requests.Post("https://www.httpbin.org/post", rawText,
+        requests.Header{"Content-Type": "text/plain"},
+    )
 	if err == nil {
 		fmt.Println(resp.Text())
 	}

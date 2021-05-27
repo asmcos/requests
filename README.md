@@ -10,7 +10,8 @@ Requests is an HTTP library, it is easy to use. Similar to Python requests.
 go get -u github.com/ahuigo/requests
 ```
 
-# Start
+# Examples
+> For more examples, refer to https://github.com/ahuigo/requests/tree/master/examples
 
 ## Get
 
@@ -41,14 +42,6 @@ You can use json builder instead:
 
     json := requests.Json{ "key": "value"}
 
-### PostString
-
-    dataStr := "{\"key\":\"This is raw data\"}"
-    resp, err := requests.Post("https://www.httpbin.org/post", dataStr)
-    if err == nil {
-        fmt.Println(resp.Text())
-    }
-
 ### PostFiles
 
 	path, _ := os.Getwd()
@@ -66,14 +59,16 @@ You can use json builder instead:
 	}
 
 ## Request Options
-### SetTimeout and debug
+
+### SetTimeout
 
     req := Requests()
-    req.Debug = 1
-
-    // 20 Second
     req.SetTimeout(20)
-    req.Get("http://golang.org")
+
+
+### Debug Mode
+    
+    req.Debug = 1
 
 ### Set Authentication
     req := requests.Requests()
@@ -83,29 +78,7 @@ You can use json builder instead:
 	cookie1 := http.Cookie{Name: "cookie_name", Value: "cookie_value"}
     req.SetCookie(&cookie1)
 
-## Response
-### Get Cookies
-
-    resp,_ = req.Get("https://www.httpbin.org")
-    coo := resp.Cookies()
-    for _, c:= range coo{
-        fmt.Println(c.Name,c.Value)
-    }
-
-# Feature Support
-  - Set headers
-  - Set params
-  - Multipart File Uploads
-  - Sessions with Cookie Persistence
-  - Proxy
-  - Authentication
-  - JSON
-  - Chunked Requests
-  - Debug
-  - SetTimeout
-
-
-# Set header
+### Set header
 
     func TestGetParamsHeaders(t *testing.T) {
         println("Test Get: custom header and params")
@@ -142,6 +115,36 @@ two or more headers ...
         headers2,
         headers3,
     )
+
+
+## Response
+### Fetch Response Body
+https://github.com/ahuigo/requests/blob/master/examples/resp_test.go
+
+    fmt.Println(resp.Text())
+    fmt.Println(resp.Content())
+
+### Fetch Response Cookies
+https://github.com/ahuigo/requests/blob/master/examples/cookie_test.go
+
+    resp,_ = req.Get("https://www.httpbin.org")
+    coo := resp.Cookies()
+    for _, c:= range coo{
+        fmt.Println(c.Name,c.Value)
+    }
+
+
+# Feature Support
+  - Set headers
+  - Set params
+  - Multipart File Uploads
+  - Sessions with Cookie Persistence
+  - Proxy
+  - Authentication
+  - JSON
+  - Chunked Requests
+  - Debug
+  - SetTimeout
 
 # Thanks
 This project is inspired by [github.com/asmcos/requests](http://github.com/asmcos/requests). 

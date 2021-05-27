@@ -9,9 +9,9 @@ import (
 	_ "github.com/ahuigo/requests/init"
 )
 
-func TestSendCookie(t *testing.T) {
-	// example 9 test AddCookie
-	println("6. Get: get with cookie")
+// Test send/get Cookie
+func TestCookie(t *testing.T) {
+	println("Test: send and get cookie")
 	req := requests.Requests().SetDebug(true)
 	cookie := &http.Cookie{
 		Name:  "anewcookie",
@@ -23,10 +23,10 @@ func TestSendCookie(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	coo := resp.Cookies()
-	// coo is [] *http.Cookies
-	println("********cookies*******")
-	for _, c := range coo {
+	cookies := resp.Cookies()
+	// cookies's type is `[]*http.Cookies`
+	println("********session cookies*******")
+	for _, c := range cookies {
 		fmt.Println(c.Name, c.Value)
 	}
 
