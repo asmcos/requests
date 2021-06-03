@@ -40,10 +40,12 @@ func TestPostJson(t *testing.T) {
 	json := requests.Json{
 		"key": "value",
 	}
+    /*
     //it still works! 
 	json = map[string]interface{}{
 		"key": "value",
 	}
+    */
 	resp, err := requests.Post("https://www.httpbin.org/post", json)
 	if err == nil {
 		fmt.Println(resp.Text())
@@ -53,12 +55,12 @@ func TestPostJson(t *testing.T) {
 
 // Post Raw Text
 func TestPostString(t *testing.T) {
-	println("Test POST: post data and json")
+    println("Test POST: post data and json")
     rawText := "raw data: Hi, Jack!"
-	resp, err := requests.Post("https://www.httpbin.org/post", rawText,
+    resp, err := requests.Post("https://www.httpbin.org/post", rawText,
         requests.Header{"Content-Type": "text/plain"},
     )
-	if err == nil {
-		fmt.Println(resp.Text())
-	}
+    if err == nil {
+        fmt.Println(resp.Text())
+    }
 }

@@ -4,6 +4,22 @@
 # requests
 Requests is an HTTP library, it is easy to use. Similar to Python requests.
 
+Warning: it is not safe in multi goroutine. You can not do as following:
+
+    // Bad! Do not call session in in multi goroutine!!!!!
+    session := requests.Requests()
+
+    // goroutine 1
+    go func(){
+       session.Post(url1) 
+    }()
+
+    // goroutine 2
+    go func(){
+       session.Post(url2) 
+    }()
+
+
 # Installation
 
 ```
@@ -26,21 +42,63 @@ go get -u github.com/ahuigo/requests
 
 ## Post
 
-### PostJson
-    data := requests.Datas{
-        "comments": "ew",
-    }
-    json := map[string]interface{}{
-        "key": "value",
-    }
-    resp, err := requests.Post("https://www.httpbin.org/post", data, json)
-    if err == nil {
-        fmt.Println(resp.Text())
+### Post params
+
+    // Post params
+    func TestPostParams(t *testing.T) {
+        println("Test POST: post params")
+        data := requests.Params{
+            "name": "ahuigo",
+        }
+        resp, err := requests.Post("https://www.httpbin.org/post", data)
+        if err == nil {
+            fmt.Println(resp.Text())
+        }
     }
 
-You can use json builder instead:
+### Post Form Data
+    // Post Form Data
+    func TestPostForm(t *testing.T) {
+        println("Test POST: post form data")
+        data := requests.Datas{
+            "comments": "ew",
+        }
+        resp, err := requests.Post("https://www.httpbin.org/post", data)
+        if err == nil {
+            fmt.Println(resp.Text())
+        }
+    }
 
-    json := requests.Json{ "key": "value"}
+
+### Post Json 
+    func TestPostJson(t *testing.T) {
+        println("Test POST: post json data")
+        json := requests.Json{
+            "key": "value",
+        }
+        /*
+        //it still works! 
+        json = map[string]interface{}{
+            "key": "value",
+        }
+        */
+        resp, err := requests.Post("https://www.httpbin.org/post", json)
+        if err == nil {
+            fmt.Println(resp.Text())
+        }
+    }
+
+### Post Raw Text
+    func TestPostString(t *testing.T) {
+        println("Test POST: post data and json")
+        rawText := "raw data: Hi, Jack!"
+        resp, err := requests.Post("https://www.httpbin.org/post", rawText,
+            requests.Header{"Content-Type": "text/plain"},
+        )
+        if err == nil {
+            fmt.Println(resp.Text())
+        }
+    }
 
 ### PostFiles
 
