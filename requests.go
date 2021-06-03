@@ -85,6 +85,8 @@ func (req *Request) reset() {
 }
 
 func (req *Request) RequestDebug() {
+	// fmt.Printf("req:%#v\n", req.httpreq)
+	// fmt.Printf("req-url:%#v\n", req.httpreq.URL.String())
 	if !req.debug {
 		return
 	}
@@ -104,17 +106,12 @@ func (req *Request) RequestDebug() {
 	}
 }
 
-// cookies
 // cookies only save to Client.Jar
-// req.Cookies is temporary
 func (req *Request) SetCookie(cookie *http.Cookie) *Request {
 	req.Cookies = append(req.Cookies, cookie)
 	return req
 }
 
-func (req *Request) ClearCookies() {
-	req.Cookies = req.Cookies[0:0]
-}
 
 // ClientSetCookies -
 func (req *Request) ClientSetCookies() {
@@ -122,7 +119,7 @@ func (req *Request) ClientSetCookies() {
 		// 1. Cookies have content, Copy Cookies to Client.jar
 		// 2. Clear  Cookies
 		req.Client.Jar.SetCookies(req.httpreq.URL, req.Cookies)
-		req.ClearCookies()
+        req.Cookies = req.Cookies[0:0]
 	}
 
 }
@@ -150,7 +147,7 @@ func (req *Request) Proxy(proxyurl string) {
 	}
 }
 
-// cleanup delete
+// decrecated cleanup
 func (req *Request) cleanup() {
 	req.httpreq.Body = nil
 	req.httpreq.GetBody = nil
@@ -161,7 +158,6 @@ func (req *Request) cleanup() {
 	//reset Cookies,
 	//Client.Do can copy cookie from client.Jar to req.Header
 	delete(req.httpreq.Header, "Cookie")
-	// req.ClearCookies()
 }
 
 // SetRespHandler
@@ -184,9 +180,6 @@ func (req *Request) SetHeader(key, value string) *Request {
 
 // Post -
 func (req *Request) Run(origurl string, args ...interface{}) (resp *Response, err error) {
-	// cleanup
-	// req.cleanup()
-
 	// set params ?a=b&b=c
 	//set Header
 	contentType := "application/x-www-form-urlencoded"
@@ -246,8 +239,6 @@ func (req *Request) Run(origurl string, args ...interface{}) (resp *Response, er
 
 	req.RequestDebug()
 
-	// fmt.Printf("req:%#v\n", req.httpreq)
-	// fmt.Printf("req-url:%#v\n", req.httpreq.URL.String())
 	res, err := req.Client.Do(req.httpreq)
 
 	if err != nil {
@@ -256,8 +247,8 @@ func (req *Request) Run(origurl string, args ...interface{}) (resp *Response, er
 
 	resp = &Response{}
 	resp.R = res
-	req_dup := *req
-	resp.req = &req_dup
+	reqDup := *req
+	resp.req = &reqDup
 	resp.ResponseDebug()
 	resp.Content()
 	req.reset()
