@@ -4,7 +4,7 @@
 # requests
 Requests is an HTTP library, it is easy to use. Similar to Python requests.
 
-Warning: it is not safe in multi goroutine. You can not do as following:
+Warning: Session is not safe in multi goroutine. You can not do as following:
 
     // Bad! Do not call session in in multi goroutine!!!!!
     session := requests.Requests()
@@ -114,6 +114,26 @@ go get -u github.com/ahuigo/requests
 	)
 	if err == nil {
 		fmt.Println(resp.Text())
+	}
+
+## Session Support
+
+	var data struct {
+		Cookies struct {
+			Count string `json:"count"`
+		}
+	}
+	session := r.Requests()
+	// set cookies: count=100
+	session.Get("https://httpbin.org/cookies/set?count=100")
+
+	// get cookies
+	resp, err := session.Get("https://httpbin.org/cookies")
+	if err == nil {
+		resp.Json(&data)
+        if data.Cookies.Count!="100"{
+            t.Fatal("Failed to get valid cookies: "+resp.Text())
+        }
 	}
 
 ## Request Options
