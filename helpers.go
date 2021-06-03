@@ -6,7 +6,6 @@ import (
 	"os"
 	"path"
 	"runtime"
-	"strings"
 )
 
 var VERSION string = "v0.0.0"
@@ -35,23 +34,13 @@ func buildURLParams(userURL string, params ...map[string]string) (string, error)
 		return "", err
 	}
 
-	parsedQuery, err := url.ParseQuery(parsedURL.RawQuery)
-
-	if err != nil {
-		return "", nil
-	}
+	parsedQuery := parsedURL.Query()
 
 	for _, param := range params {
 		for key, value := range param {
 			parsedQuery.Add(key, value)
 		}
 	}
-	return addQueryParams(parsedURL, parsedQuery), nil
+    return parsedURL.String(), nil
 }
 
-func addQueryParams(parsedURL *url.URL, parsedQuery url.Values) string {
-	if len(parsedQuery) > 0 {
-		return strings.Join([]string{strings.Replace(parsedURL.String(), "?"+parsedURL.RawQuery, "", -1), parsedQuery.Encode()}, "?")
-	}
-	return strings.Replace(parsedURL.String(), "?"+parsedURL.RawQuery, "", -1)
-}
