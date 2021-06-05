@@ -159,7 +159,6 @@ Warning: Session is not safe in multi goroutine. You can not do as following:
     session := Requests.Sessions()
     session.SetTimeout(20)
 
-
 ### Debug Mode
     
     session.Debug = 1
@@ -226,6 +225,20 @@ https://github.com/ahuigo/requests/blob/master/examples/cookie_test.go
     for _, c:= range coo{
         fmt.Println(c.Name,c.Value)
     }
+
+## Build Request
+
+	req, err := r.BuildRequest("post", "http://baidu.com/a/b/c", r.Json{
+		"age": 1,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	body, _ := ioutil.ReadAll(req.Body)
+	expectedBody := `{"age":1}`
+	if string(body) != expectedBody {
+		t.Fatal("Failed to build request")
+	}
 
 
 # Feature Support
