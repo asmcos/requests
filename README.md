@@ -1,13 +1,13 @@
 # Requests
 [![license](http://dmlc.github.io/img/apache2.svg)](https://raw.githubusercontent.com/ahuigo/requests/master/LICENSE)
 
-# requests
+# Requests
 Requests is an HTTP library, it is easy to use. Similar to Python requests.
 
 Warning: Session is not safe in multi goroutine. You can not do as following:
 
     // Bad! Do not call session in in multi goroutine!!!!!
-    session := requests.Requests()
+    session := requests.Sessions()
 
     // goroutine 1
     go func(){
@@ -103,9 +103,9 @@ go get -u github.com/ahuigo/requests
 ### PostFiles
 
 	path, _ := os.Getwd()
-	req := requests.Requests()
+	session := requests.Sessions()
 
-	resp, err := req.SetDebug(true).Post(
+	resp, err := session.SetDebug(true).Post(
 		"https://www.httpbin.org/post",
 		requests.Files{
             "file1": path + "/README.md",
@@ -117,17 +117,18 @@ go get -u github.com/ahuigo/requests
 	}
 
 ## Session Support
+    // 0. Make a session
+	session := r.Sessions()
 
+    // 1. First, set cookies: count=100
 	var data struct {
 		Cookies struct {
 			Count string `json:"count"`
 		}
 	}
-	session := r.Requests()
-	// set cookies: count=100
 	session.Get("https://httpbin.org/cookies/set?count=100")
 
-	// get cookies
+	// 2. Second, get cookies
 	resp, err := session.Get("https://httpbin.org/cookies")
 	if err == nil {
 		resp.Json(&data)
@@ -136,25 +137,40 @@ go get -u github.com/ahuigo/requests
         }
 	}
 
+Warning: Session is not safe in multi goroutine. You can not do as following:
+
+    // Bad! Do not call session in in multi goroutine!!!!!
+    session := requests.Sessions()
+
+    // goroutine 1
+    go func(){
+       session.Post(url1) 
+    }()
+
+    // goroutine 2
+    go func(){
+       session.Post(url2) 
+    }()
+
 ## Request Options
 
 ### SetTimeout
 
-    req := Requests()
-    req.SetTimeout(20)
+    session := Requests.Sessions()
+    session.SetTimeout(20)
 
 
 ### Debug Mode
     
-    req.Debug = 1
+    session.Debug = 1
 
 ### Set Authentication
-    req := requests.Requests()
-    resp,_ := req.Get("https://api.github.com/user",requests.Auth{"asmcos","password...."})
+    session := requests.Sessions()
+    resp,_ := session.Get("https://api.github.com/user",requests.Auth{"asmcos","password...."})
 
 ### Set Cookie
 	cookie1 := http.Cookie{Name: "cookie_name", Value: "cookie_value"}
-    req.SetCookie(&cookie1)
+    session.SetCookie(&cookie1)
 
 ### Set header
 
@@ -168,9 +184,9 @@ go get -u github.com/ahuigo/requests
     }
 
     func TestGetParamsHeaders2(t *testing.T) {
-        req := requests.Requests("get")
-        req.SetHeader("accept-encoding", "gzip, deflate, br")
-        req.Run("http://www.zhanluejia.net.cn",
+        session := requests.Sessions()
+        session.SetHeader("accept-encoding", "gzip, deflate, br")
+        session.Run("http://www.zhanluejia.net.cn",
             requests.Params{"page": "1", "size": "20"},
             requests.Params{"name": "ahuio"},
         )
@@ -187,7 +203,7 @@ two or more headers ...
 
     headers1 := requests.Header{"Referer": "http://www.jeapedu.com"},
     ....
-    resp,_ = req.Get(
+    resp,_ = session.Get(
         "http://www.zhanluejia.net.cn",
         headers1,
         headers2,
@@ -205,7 +221,7 @@ https://github.com/ahuigo/requests/blob/master/examples/resp_test.go
 ### Fetch Response Cookies
 https://github.com/ahuigo/requests/blob/master/examples/cookie_test.go
 
-    resp,_ = req.Get("https://www.httpbin.org")
+    resp,_ = session.Get("https://www.httpbin.org")
     coo := resp.Cookies()
     for _, c:= range coo{
         fmt.Println(c.Name,c.Value)

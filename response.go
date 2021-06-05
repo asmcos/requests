@@ -26,11 +26,11 @@ type Response struct {
 	R       *http.Response
 	content []byte
 	text    string
-	req     *Request
+	session *Session
 }
 
 func (resp *Response) ResponseDebug() {
-	if !resp.req.debug {
+	if !resp.session.debug {
 		return
 	}
 	fmt.Println("===========Go ResponseDebug ============")
@@ -51,7 +51,7 @@ func (resp *Response) Content() []byte {
 	defer resp.R.Body.Close()
 
 	var Body = resp.R.Body
-	if resp.R.Header.Get("Content-Encoding") == "gzip" && resp.req.Header.Get("Accept-Encoding") != "" {
+	if resp.R.Header.Get("Content-Encoding") == "gzip" && resp.session.Header.Get("Accept-Encoding") != "" {
 		reader, err := gzip.NewReader(Body)
 		if err != nil {
 			return nil
@@ -99,8 +99,8 @@ func (resp *Response) Json(v interface{}) error {
 }
 
 func (resp *Response) Cookies() (cookies []*http.Cookie) {
-	httpreq := resp.req.httpreq
-	client := resp.req.Client
+	httpreq := resp.session.httpreq
+	client := resp.session.Client
 
 	cookies = client.Jar.Cookies(httpreq.URL)
 

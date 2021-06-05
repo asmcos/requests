@@ -10,8 +10,8 @@ import (
 
 func TestGetDebug(t *testing.T) {
 	println("4. Get: SetDebug")
-	req := requests.Requests().SetDebug(true)
-	resp, err := req.Get("https://httpbin.org/gzip")
+	session := requests.Sessions().SetDebug(true)
+	resp, err := session.Get("https://httpbin.org/gzip")
 	if err == nil {
 		fmt.Println(resp.Text())
 	}

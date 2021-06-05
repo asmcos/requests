@@ -12,7 +12,7 @@ import (
 // Test send/get Cookie
 func TestCookie(t *testing.T) {
 	println("Test: send and get cookie")
-	req := requests.Requests().SetDebug(true)
+	req := requests.Sessions().SetDebug(true)
 	cookie := &http.Cookie{
 		Name:  "anewcookie",
 		Value: "20180825",

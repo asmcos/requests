@@ -36,11 +36,10 @@ func TestGetParamsHeaders(t *testing.T) {
 
 // Send headers
 func TestGetParamsHeaders2(t *testing.T) {
-	req := requests.Requests()
-	req.SetHeader("accept-encoding", "gzip, deflate, br")
-	req.Get("http://www.zhanluejia.net.cn",
+	session := requests.Sessions()
+	session.SetHeader("accept-encoding", "gzip, deflate, br")
+	session.Get("http://www.zhanluejia.net.cn",
 		requests.Params{"page": "1", "size": "20"},
 		requests.Params{"name": "ahuio"},
 	)
 }
-
