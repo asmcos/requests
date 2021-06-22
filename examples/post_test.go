@@ -55,7 +55,7 @@ func TestPostJson(t *testing.T) {
 
 // Post Raw Text
 func TestPostString(t *testing.T) {
-    println("Test POST: post data and json")
+    println("Test POST: raw post data ")
     rawText := "raw data: Hi, Jack!"
     resp, err := requests.Post("https://www.httpbin.org/post", rawText,
         requests.Header{"Content-Type": "text/plain"},
@@ -63,4 +63,24 @@ func TestPostString(t *testing.T) {
     if err == nil {
         fmt.Println(resp.Text())
     }
+}
+
+// Post Raw Text
+func TestPostBytes(t *testing.T) {
+    println("Test POST: post bytes data")
+    rawText := "raw data: Hi, Jack!"
+    resp, err := requests.Post("https://www.httpbin.org/post", []byte(rawText),
+        requests.Header{"Content-Type": "text/plain"},
+    )
+    if err != nil {
+        t.Error(err)
+    }
+    var data = struct{
+        Data string
+    }{}
+    err = resp.Json(&data)
+    if data.Data != rawText {
+        t.Error(err)
+    }
+
 }

@@ -196,6 +196,8 @@ func (session *Session) BuildRequest(origurl string, args ...interface{}) (*http
 			session.httpreq.SetBasicAuth(a[0], a[1])
 		case string:
 			bodyBytes = []byte(a)
+		case []byte:
+			bodyBytes = a
 		case Json:
 			contentType = "application/json"
 			bodyBytes = session.buildJSON(a)
