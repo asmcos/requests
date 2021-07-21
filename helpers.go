@@ -34,13 +34,13 @@ func buildURLParams(userURL string, params ...map[string]string) (string, error)
 		return "", err
 	}
 
-	parsedQuery := parsedURL.Query()
+	values := parsedURL.Query()
 
 	for _, param := range params {
 		for key, value := range param {
-			parsedQuery.Add(key, value)
+			values.Set(key, value)
 		}
 	}
-    return parsedURL.String(), nil
+	parsedURL.RawQuery = values.Encode()
+	return parsedURL.String(), nil
 }
-

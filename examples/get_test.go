@@ -24,22 +24,43 @@ func TestGetJson(t *testing.T) {
 	}
 }
 
+type HbResponse struct {
+	Args map[string]string `json:"args"`
+}
+
+// Get with params
+func TestGetParams(t *testing.T) {
+	params := requests.Params{"name": "ahuigo"}
+	resp, err := requests.Get("https://httpbin.org/get", params)
+	if err == nil {
+		json := &HbResponse{}
+		if err := resp.Json(&json); err != nil {
+			t.Fatal(err)
+		}
+		if json.Args["name"] != "ahuigo" {
+			t.Fatal("Invalid response: " + resp.Text())
+		}
+	}
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 // Send headers
-func TestGetParamsHeaders(t *testing.T) {
-	println("Test Get: custom header and params")
-	requests.Get("http://www.zhanluejia.net.cn",
+func TestGetHeaders(t *testing.T) {
+	println("Test Get: custom header")
+	requests.Get(
+		"http://www.zhanluejia.net.cn",
 		requests.Header{"Referer": "http://www.jeapedu.com"},
-		requests.Params{"page": "1", "size": "20"},
-		requests.Params{"name": "ahuio"},
 	)
 }
 
 // Send headers
-func TestGetParamsHeaders2(t *testing.T) {
+func TestGetHeaderParams(t *testing.T) {
 	session := requests.Sessions()
 	session.SetHeader("accept-encoding", "gzip, deflate, br")
-	session.Get("http://www.zhanluejia.net.cn",
-		requests.Params{"page": "1", "size": "20"},
+	session.Get(
+		"http://www.zhanluejia.net.cn",
 		requests.Params{"name": "ahuio"},
 	)
 }
