@@ -9,8 +9,22 @@ import (
 	_ "github.com/ahuigo/requests/init"
 )
 
-// Test send/get Cookie
-func TestCookie(t *testing.T) {
+func TestSendCookie(t *testing.T) {
+	resp, err := requests.Get("https://www.httpbin.org/cookies",
+		requests.Header{"Cookie": "id_token=1234"},
+		requests.Json{"workflow_id": "wfid1234"},
+	)
+	if err != nil {
+		panic(err)
+	}
+	data := map[string]interface{}{}
+	resp.Json(&data)
+	fmt.Println(data)
+
+}
+
+// Test session Cookie
+func TestSessionCookie(t *testing.T) {
 	println("Test: send and get cookie")
 	req := requests.Sessions().SetDebug(true)
 	cookie := &http.Cookie{
