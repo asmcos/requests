@@ -25,6 +25,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"strings"
+    "errors"
 	"time"
 )
 
@@ -242,7 +243,7 @@ func (session *Session) Run(origurl string, args ...interface{}) (resp *Response
 	res, err := session.Client.Do(session.httpreq)
 
 	if err != nil {
-		return nil, err
+		return nil, errors.New(session.httpreq.Method+" "+origurl+" "+err.Error())
 	}
 
 	resp = &Response{}
