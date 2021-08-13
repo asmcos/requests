@@ -30,7 +30,7 @@ type HbResponse struct {
 
 // Get with params
 func TestGetParams(t *testing.T) {
-	params := requests.Params{"name": "ahuigo"}
+    params := requests.Params{"name": "ahuigo", "page":"1"}
 	resp, err := requests.Get("https://httpbin.org/get", params)
 	if err == nil {
 		json := &HbResponse{}

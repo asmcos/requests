@@ -32,7 +32,8 @@ go get -u github.com/ahuigo/requests
 ## Get
 
     var json map[string]interface{}
-    resp, err := requests.Get("https://httpbin.org/json")
+    params := requests.Params{"name": "ahuigo", "page":"1"}
+    resp, err := requests.Get("https://httpbin.org/json", params)
     if err == nil {
         resp.Json(&json)
         for k, v := range json {
