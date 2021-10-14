@@ -30,16 +30,23 @@ go get -u github.com/ahuigo/requests
 > For more examples, refer to https://github.com/ahuigo/requests/tree/master/examples
 
 ## Get
+    package main
+    import (
+        "github.com/ahuigo/requests"
+    )
 
-    var json map[string]interface{}
-    params := requests.Params{"name": "ahuigo", "page":"1"}
-    resp, err := requests.Get("https://httpbin.org/json", params)
-    if err == nil {
-        resp.Json(&json)
-        for k, v := range json {
-            fmt.Println(k, v)
+    func main(){
+        var json map[string]interface{}
+        params := requests.Params{"name": "ahuigo", "page":"1"}
+        resp, err := requests.Get("https://httpbin.org/json", params)
+        if err == nil {
+            resp.Json(&json)
+            for k, v := range json {
+                fmt.Println(k, v)
+            }
         }
     }
+
 
 ## Post
 
