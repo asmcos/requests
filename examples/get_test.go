@@ -30,8 +30,9 @@ type HbResponse struct {
 
 // Get with params
 func TestGetParams(t *testing.T) {
-    params := requests.Params{"name": "ahuigo", "page":"1"}
+	params := requests.Params{"name": "ahuigo", "page": "1"}
 	resp, err := requests.Get("https://httpbin.org/get", params)
+
 	if err == nil {
 		json := &HbResponse{}
 		if err := resp.Json(&json); err != nil {
@@ -44,23 +45,4 @@ func TestGetParams(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-}
-
-// Send headers
-func TestGetHeaders(t *testing.T) {
-	println("Test Get: custom header")
-	requests.Get(
-		"http://www.zhanluejia.net.cn",
-		requests.Header{"Referer": "http://www.jeapedu.com"},
-	)
-}
-
-// Send headers
-func TestGetHeaderParams(t *testing.T) {
-	session := requests.Sessions()
-	session.SetHeader("accept-encoding", "gzip, deflate, br")
-	session.Get(
-		"http://www.zhanluejia.net.cn",
-		requests.Params{"name": "ahuio"},
-	)
 }

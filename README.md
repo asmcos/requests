@@ -33,6 +33,7 @@ go get -u github.com/ahuigo/requests
     package main
     import (
         "github.com/ahuigo/requests"
+        "fmt"
     )
 
     func main(){
@@ -248,6 +249,13 @@ https://github.com/ahuigo/requests/blob/master/examples/cookie_test.go
 		t.Fatal("Failed to build request")
 	}
 
+## Custom
+
+### Custom User Agent
+
+	headerK := "User-Agent"
+	headerV := "Custom-Test-Go-User-Agent"
+	requests.SetHeader(headerK, headerV)
 
 # Feature Support
   - Set headers

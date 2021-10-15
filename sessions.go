@@ -16,6 +16,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -25,11 +26,13 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"strings"
-    "errors"
 	"time"
 )
 
 var respHandler func(*Response)
+var gHeader = map[string]string{
+	"User-Agent": "Go-requests-" + VERSION,
+}
 
 // SetRespHandler
 func SetRespHandler(fn func(*Response)) {
@@ -74,6 +77,15 @@ func Sessions() *Session {
 	return session
 }
 
+// Set global header
+func SetHeader(key, value string) {
+	if value == "" {
+		delete(gHeader, key)
+		return
+	}
+	gHeader[key] = value
+}
+
 func (session *Session) reset() {
 	session.httpreq = &http.Request{
 		Method:     "GET",
@@ -83,7 +95,9 @@ func (session *Session) reset() {
 		ProtoMinor: 1,
 	}
 	session.Header = &session.httpreq.Header
-	session.httpreq.Header.Set("User-Agent", "Go-Sessions "+VERSION)
+	for key, value := range gHeader {
+		session.httpreq.Header.Set(key, value)
+	}
 }
 
 func (session *Session) RequestDebug() {
@@ -243,7 +257,7 @@ func (session *Session) Run(origurl string, args ...interface{}) (resp *Response
 	res, err := session.Client.Do(session.httpreq)
 
 	if err != nil {
-		return nil, errors.New(session.httpreq.Method+" "+origurl+" "+err.Error())
+		return nil, errors.New(session.httpreq.Method + " " + origurl + " " + err.Error())
 	}
 
 	resp = &Response{}
