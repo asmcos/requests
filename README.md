@@ -4,9 +4,9 @@
 # Requests
 Requests is an HTTP library, it is easy to use. Similar to Python requests.
 
-Warning: Session is not safe in multi goroutine. You can not do as following:
+Warning: Session is not safe in multiple goroutines. You can not do as following:
 
-    // Bad! Do not call session in in multi goroutine!!!!!
+    // Bad! Do not call session in in multiple goroutines!!!!!
     session := requests.Sessions()
 
     // goroutine 1

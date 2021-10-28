@@ -12,16 +12,6 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 package requests
 
-import "net/http"
-
-// BuildRequest -
-func BuildRequest(method string, origurl string, args ...interface{}) (req *http.Request, err error) {
-	// call request Get
-	args = append(args, Method(method))
-	req, err = Sessions().BuildRequest(origurl, args...)
-	return
-}
-
 /**************post/get/delete/patch*************************/
 func Get(origurl string, args ...interface{}) (resp *Response, err error) {
 	// call request Get
