@@ -2,14 +2,15 @@ package examples
 
 import (
 	"io/ioutil"
+	"regexp"
 	"testing"
 
-	r "github.com/ahuigo/requests"
+	"github.com/ahuigo/requests"
 )
 
 // TestBuildRequest
 func TestBuildRequest(t *testing.T) {
-	req, err := r.BuildRequest("post", "http://baidu.com/a/b/c", r.Json{
+	req, err := requests.BuildRequest("post", "http://baidu.com/a/b/c", requests.Json{
 		"age": 1,
 	})
 	if err != nil {
@@ -23,14 +24,12 @@ func TestBuildRequest(t *testing.T) {
 }
 
 func TestBuildCurlRequest(t *testing.T) {
-	// req, err := r.BuildRequest("post", "http://baidu.com/a/b/c", r.Json{
-	// 	"age": 1,
-	// })
-	// if err != nil {
-	// 	t.Fatal(err)
-	// }
-	// cmd:=r.BuildCurlRequest(req)
-	// if !regexp.MustCompile(``).MatchString(cmd){
-	// 	t.Fatal(`bad curl cmd`)
-	// }
+	req, _ := requests.BuildRequest("post", "https://baidu.com/path?q=curl&v=1", requests.Json{
+		"age": 1,
+	})
+	curl := requests.BuildCurlRequest(req)
+	if !regexp.MustCompile(`^curl -X POST .+ 'https://baidu.com/path\?q=curl&v=1'`).MatchString(curl) {
+		t.Fatal(`bad curl cmd: ` + curl)
+	}
+	t.Log(curl)
 }

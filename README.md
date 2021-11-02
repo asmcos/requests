@@ -235,6 +235,16 @@ https://github.com/ahuigo/requests/blob/master/examples/cookie_test.go
         fmt.Println(c.Name,c.Value)
     }
 
+## Custom
+
+### Custom User Agent
+
+	headerK := "User-Agent"
+	headerV := "Custom-Test-Go-User-Agent"
+	requests.SetHeader(headerK, headerV)
+
+# Utils
+
 ## Build Request
 
 	req, err := r.BuildRequest("post", "http://baidu.com/a/b/c", r.Json{
@@ -249,13 +259,16 @@ https://github.com/ahuigo/requests/blob/master/examples/cookie_test.go
 		t.Fatal("Failed to build request")
 	}
 
-## Custom
+## Generate curl shell command
 
-### Custom User Agent
+	req, _ := requests.BuildRequest("post", "https://baidu.com/path?q=curl&v=1", requests.Json{
+		"age": 1,
+	})
+	curl := requests.BuildCurlRequest(req)
+	if !regexp.MustCompile(`^curl -X POST .+ 'https://baidu.com/path\?q=curl&v=1'`).MatchString(curl) {
+		t.Fatal(`bad curl cmd: ` + curl)
+	}
 
-	headerK := "User-Agent"
-	headerV := "Custom-Test-Go-User-Agent"
-	requests.SetHeader(headerK, headerV)
 
 # Feature Support
   - Set headers
