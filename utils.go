@@ -26,7 +26,9 @@ func BuildCurlRequest(req *http.Request) (curl string) {
 	// body
 	buf, _ := ioutil.ReadAll(req.Body)
 	req.Body = ioutil.NopCloser(bytes.NewBuffer(buf)) // important!!
-	curl += `-d ` + shellescape.Quote(string(buf))
+	if len(buf) > 0 {
+		curl += `-d ` + shellescape.Quote(string(buf))
+	}
 
 	curl += " " + shellescape.Quote(req.URL.String())
 	return curl
@@ -41,6 +43,8 @@ func getHeaders(req *http.Request) *[][2]string {
 		}
 	}
 	n := len(headers)
+	// fmt.Printf("%#v\n", headers)
+	// sort headers
 	for i := 0; i < n; i++ {
 		for j := n - 1; j > i; j-- {
 			jj := j - 1

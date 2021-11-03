@@ -105,7 +105,8 @@ func (session *Session) RequestDebug() {
 		return
 	}
 	fmt.Println("===========Go RequestDebug !============")
-
+	curl := BuildCurlRequest(session.httpreq)
+	fmt.Println(curl)
 	message, err := httputil.DumpRequestOut(session.httpreq, false)
 	if err != nil {
 		return

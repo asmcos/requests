@@ -12,7 +12,7 @@ import (
 func TestClose(t *testing.T) {
 	fmt.Println("Test Close")
 	req := requests.Sessions()
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < 10; i++ {
 		_, err := req.Post(
 			"http://localhost:1337/requests",
 			requests.Datas{"SrcIp": "4312"})
@@ -21,7 +21,7 @@ func TestClose(t *testing.T) {
 	}
 
 	spew.Dump(req)
-	fmt.Println("1000 times get test end.")
+	fmt.Println("10 times get test end.")
 }
 func TestTimeout(t *testing.T) {
 	println("Test Timeout")
