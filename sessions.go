@@ -137,8 +137,11 @@ func (session *Session) ClearCookies() {
 func (session *Session) ClientSetCookies() {
 	if len(session.Cookies) > 0 {
 		// 1. Cookies have content, Copy Cookies to Client.jar
-		// 2. Clear  Cookies
+		// for _, cookie := range session.Cookies {
+		// 	session.httpreq.AddCookie(cookie)
+		// }
 		session.Client.Jar.SetCookies(session.httpreq.URL, session.Cookies)
+		// 2. Clear  Cookies
 		session.ClearCookies()
 	}
 
@@ -214,6 +217,8 @@ func (session *Session) BuildRequest(origurl string, args ...interface{}) (*http
 			bodyBytes = []byte(a)
 		case []byte:
 			bodyBytes = a
+		case *http.Cookie:
+			session.SetCookie(a)
 		case Json:
 			contentType = "application/json"
 			bodyBytes = session.buildJSON(a)
@@ -254,8 +259,8 @@ func (session *Session) BuildRequest(origurl string, args ...interface{}) (*http
 // Post -
 func (session *Session) Run(origurl string, args ...interface{}) (resp *Response, err error) {
 	session.BuildRequest(origurl, args...)
-	session.RequestDebug()
 	res, err := session.Client.Do(session.httpreq)
+	session.RequestDebug()
 
 	if err != nil {
 		return nil, errors.New(session.httpreq.Method + " " + origurl + " " + err.Error())

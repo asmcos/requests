@@ -23,6 +23,10 @@ func BuildCurlRequest(req *http.Request) (curl string) {
 	for _, kv := range *headers {
 		curl += `-H ` + shellescape.Quote(kv[0]+": "+kv[1]) + ` `
 	}
+	// // cookies
+	// for _, cookie := range req.Cookies() {
+	// 	fmt.Printf("cookie:%#v\n", cookie)
+	// }
 	// body
 	buf, _ := ioutil.ReadAll(req.Body)
 	req.Body = ioutil.NopCloser(bytes.NewBuffer(buf)) // important!!
