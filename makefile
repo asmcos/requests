@@ -1,4 +1,4 @@
-msg?=''
+msg ?= ''
 test:
 	go test -v ./examples
 
@@ -7,11 +7,14 @@ test_local:
 
 .ONESHELL:
 t:
-	v=`cat version` && echoraw $$v
-	v=`cat version` && git tag $$v && git push origin $$v
+	if [[ "$(msg)" = "" ]] ; then echo "Usage: make pkg msg='commit msg'";exit 20; fi
 
-pkg: test
+gitcheck:
+	if [[ "$(msg)" = "" ]] ; then echo "Usage: make pkg msg='commit msg'";exit 20; fi
+
+.ONESHELL:
+pkg: gitcheck test
 	newversion.py version
-	git commit -am "$$msg"
+	git commit -am "$(msg)"
 	jfrog "rt" "go-publish" "go-pl" $$(cat version) "--url=$$GOPROXY_API" --user=$$GOPROXY_USER --apikey=$$GOPROXY_PASS
-	v=`cat version` && git tag $$v && git push origin $$v
+	v=`cat version` && git tag "$$v" && git push origin "$$v"
