@@ -64,6 +64,27 @@ go get -u github.com/ahuigo/requests
             fmt.Println(resp.Text())
         }
     }
+#### Post query string
+
+    // Post QueryString: application/x-www-form-urlencoded
+    func TestPostQueryString(t *testing.T) {
+    	queryString := "name=Alex&age=29"
+    	resp, err := requests.Post("https://www.httpbin.org/post", queryString)
+    	if err != nil {
+            t.Fatal(err)
+    	}
+    	var data = struct {
+    		Form struct{
+                Name string
+                Age string
+            }
+    	}{}
+    	err = resp.Json(&data)
+    	if data.Form.Age != "29"{
+            t.Error("invalid response body:", resp.Text())
+    	}
+    }
+
 
 ### Post Form Data
     // Post Form Data
@@ -97,11 +118,13 @@ go get -u github.com/ahuigo/requests
         }
     }
 
-### Post Raw Text
-    func TestPostString(t *testing.T) {
+### Post Raw text/plain
+    func TestRawString(t *testing.T) {
         println("Test POST: post data and json")
         rawText := "raw data: Hi, Jack!"
-        resp, err := requests.Post("https://www.httpbin.org/post", rawText,
+        resp, err := requests.Post(
+            "https://www.httpbin.org/post", 
+            rawText,
             requests.Header{"Content-Type": "text/plain"},
         )
         if err == nil {

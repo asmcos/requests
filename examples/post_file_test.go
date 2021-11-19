@@ -1,7 +1,6 @@
 package examples
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
@@ -19,7 +18,17 @@ func TestPostFile(t *testing.T) {
 			"file2": path + "/version",
 		},
 	)
-	if err == nil {
-		fmt.Println(resp.Text())
+    if err !=nil {
+        t.Error(err)
 	}
+	var data = struct {
+		Files struct{
+            File2 string
+        }
+	}{}
+	err = resp.Json(&data)
+	if data.Files.File2== ""{
+        t.Error("invalid response body:", resp.Text())
+	}
+
 }
