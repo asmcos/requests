@@ -259,8 +259,8 @@ func (session *Session) BuildRequest(origurl string, args ...interface{}) (*http
 // Post -
 func (session *Session) Run(origurl string, args ...interface{}) (resp *Response, err error) {
 	session.BuildRequest(origurl, args...)
-	res, err := session.Client.Do(session.httpreq)
 	session.RequestDebug()
+	res, err := session.Client.Do(session.httpreq)
 
 	if err != nil {
 		return nil, errors.New(session.httpreq.Method + " " + origurl + " " + err.Error())
