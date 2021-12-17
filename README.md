@@ -40,7 +40,9 @@ go get -u github.com/ahuigo/requests
         var json map[string]interface{}
         params := requests.Params{"name": "ahuigo", "page":"1"}
         resp, err := requests.Get("https://httpbin.org/json", params)
-        if err == nil {
+        if err != nil {
+            panic(err)
+        }else{
             resp.Json(&json)
             for k, v := range json {
                 fmt.Println(k, v)
@@ -100,7 +102,7 @@ go get -u github.com/ahuigo/requests
     }
 
 
-### Post Json 
+### Post Json (default)
     func TestPostJson(t *testing.T) {
         println("Test POST: post json data")
         json := requests.Json{
