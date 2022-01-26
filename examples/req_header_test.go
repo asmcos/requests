@@ -22,7 +22,7 @@ func TestSendSessionHeader(t *testing.T) {
 	session.Get("http://www.zhanluejia.net.cn")
 }
 
-// Test send header
+// Set global header(user-agent)
 func TestSetGlobalHeader(t *testing.T) {
 	headerK := "User-Agent"
 	headerV := "Custom-Test-Go-User-Agent"
