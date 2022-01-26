@@ -31,7 +31,7 @@ import (
 
 var respHandler func(*Response)
 var gHeader = map[string]string{
-	"User-Agent": "Go-requests-" + VERSION,
+	"User-Agent": "Go-requests-" + getVersion(),
 }
 
 // SetRespHandler
