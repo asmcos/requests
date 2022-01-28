@@ -3,7 +3,7 @@ package examples
 import (
 	"testing"
 
-	r "github.com/ahuigo/requests"
+	r "github.com/asmcos/requests"
 )
 
 // Test Session with cookies

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/ahuigo/requests"
-	_ "github.com/ahuigo/requests/init"
+	"github.com/asmcos/requests"
+	_ "github.com/asmcos/requests/init"
 )
 
 // Get Json Response
@@ -30,7 +30,7 @@ type HbResponse struct {
 
 // Get with params
 func TestGetParams(t *testing.T) {
-	params := requests.Params{"name": "ahuigo", "page": "1"}
+	params := requests.Params{"name": "asmcos", "page": "1"}
 	resp, err := requests.Get("https://httpbin.org/get", params)
 
 	if err == nil {
@@ -38,7 +38,7 @@ func TestGetParams(t *testing.T) {
 		if err := resp.Json(&json); err != nil {
 			t.Fatal(err)
 		}
-		if json.Args["name"] != "ahuigo" {
+		if json.Args["name"] != "asmcos" {
 			t.Fatal("Invalid response: " + resp.Text())
 		}
 	}

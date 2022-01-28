@@ -3,8 +3,8 @@ package examples
 import (
 	"testing"
 
-	"github.com/ahuigo/requests"
-	_ "github.com/ahuigo/requests/init"
+	"github.com/asmcos/requests"
+	_ "github.com/asmcos/requests/init"
 )
 
 func TestProxy(t *testing.T) {

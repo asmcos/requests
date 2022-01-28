@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/ahuigo/requests"
-	_ "github.com/ahuigo/requests/init"
+	"github.com/asmcos/requests"
+	_ "github.com/asmcos/requests/init"
 )
 
 func TestSendCookie(t *testing.T) {

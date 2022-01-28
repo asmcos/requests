@@ -1,4 +1,4 @@
-module github.com/ahuigo/requests
+module github.com/asmcos/requests
 
 go 1.13
 

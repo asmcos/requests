@@ -1,5 +1,5 @@
 # Requests
-[![license](http://dmlc.github.io/img/apache2.svg)](https://raw.githubusercontent.com/ahuigo/requests/master/LICENSE)
+[![license](http://dmlc.github.io/img/apache2.svg)](https://raw.githubusercontent.com/asmcos/requests/master/LICENSE)
 
 # Requests
 Requests is an HTTP library, it is easy to use. Similar to Python requests.
@@ -23,22 +23,22 @@ Warning: Session is not safe in multiple goroutines. You can not do as following
 # Installation
 
 ```
-go get -u github.com/ahuigo/requests
+go get -u github.com/asmcos/requests
 ```
 
 # Examples
-> For more examples, refer to https://github.com/ahuigo/requests/tree/master/examples
+> For more examples, refer to https://github.com/asmcos/requests/tree/master/examples
 
 ## Get
     package main
     import (
-        "github.com/ahuigo/requests"
+        "github.com/asmcos/requests"
         "fmt"
     )
 
     func main(){
         var json map[string]interface{}
-        params := requests.Params{"name": "ahuigo", "page":"1"}
+        params := requests.Params{"name": "asmcos", "page":"1"}
         resp, err := requests.Get("https://httpbin.org/json", params)
         if err != nil {
             panic(err)
@@ -59,7 +59,7 @@ go get -u github.com/ahuigo/requests
     func TestPostParams(t *testing.T) {
         println("Test POST: post params")
         data := requests.Params{
-            "name": "ahuigo",
+            "name": "asmcos",
         }
         resp, err := requests.Post("https://www.httpbin.org/post", data)
         if err == nil {
@@ -246,13 +246,13 @@ two or more headers ...
 
 ## Response
 ### Fetch Response Body
-https://github.com/ahuigo/requests/blob/master/examples/resp_test.go
+https://github.com/asmcos/requests/blob/master/examples/resp_test.go
 
     fmt.Println(resp.Text())
     fmt.Println(resp.Content())
 
 ### Fetch Response Cookies
-https://github.com/ahuigo/requests/blob/master/examples/cookie_test.go
+https://github.com/asmcos/requests/blob/master/examples/cookie_test.go
 
     resp,_ = session.Get("https://www.httpbin.org")
     coo := resp.Cookies()

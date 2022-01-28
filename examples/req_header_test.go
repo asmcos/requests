@@ -3,7 +3,7 @@ package examples
 import (
 	"testing"
 
-	"github.com/ahuigo/requests"
+	"github.com/asmcos/requests"
 )
 
 // Send headers

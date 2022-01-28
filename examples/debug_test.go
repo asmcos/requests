@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/ahuigo/requests"
-	_ "github.com/ahuigo/requests/init"
+	"github.com/asmcos/requests"
+	_ "github.com/asmcos/requests/init"
 )
 
 func TestGetDebug(t *testing.T) {
@@ -14,7 +14,7 @@ func TestGetDebug(t *testing.T) {
 	session := requests.Sessions().SetDebug(true)
 	resp, err := session.Post("https://httpbin.org/post",
 		requests.Json{
-			"name": "ahuigo",
+			"name": "asmcos",
 		},
 		&http.Cookie{
 			Name:  "count",

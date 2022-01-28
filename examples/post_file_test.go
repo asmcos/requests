@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/ahuigo/requests"
-	_ "github.com/ahuigo/requests/init"
+	"github.com/asmcos/requests"
+	_ "github.com/asmcos/requests/init"
 )
 
 func TestPostFile(t *testing.T) {

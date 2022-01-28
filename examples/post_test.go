@@ -4,8 +4,8 @@ import (
 	ejson "encoding/json"
 	"testing"
 
-	"github.com/ahuigo/requests"
-	_ "github.com/ahuigo/requests/init"
+	"github.com/asmcos/requests"
+	_ "github.com/asmcos/requests/init"
 )
 
 // Post params
@@ -14,7 +14,7 @@ func TestPostParams(t *testing.T) {
 	resp, err := requests.Post(
 		"https://www.httpbin.org/post",
 		requests.Params{
-			"name": "ahuigo",
+			"name": "asmcos",
 		},
 	)
 	if err != nil {
@@ -26,7 +26,7 @@ func TestPostParams(t *testing.T) {
 		}
 	}{}
 	_ = resp.Json(&data)
-	if data.Args.Name != "ahuigo" {
+	if data.Args.Name != "asmcos" {
 		t.Error("invalid response body:", resp.Text())
 	}
 }
@@ -37,7 +37,7 @@ func TestPostForm(t *testing.T) {
 	resp, err := requests.Post(
 		"https://www.httpbin.org/post",
 		requests.Datas{
-			"name": "ahuigo",
+			"name": "asmcos",
 		},
 	)
 	if err != nil {
@@ -49,7 +49,7 @@ func TestPostForm(t *testing.T) {
 		}
 	}{}
 	err = resp.Json(&data)
-	if data.Form.Name != "ahuigo" {
+	if data.Form.Name != "asmcos" {
 		t.Error("invalid response body:", resp.Text())
 	}
 }

@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/ahuigo/requests"
+	"github.com/asmcos/requests"
 )
 
 // TestBuildRequest
