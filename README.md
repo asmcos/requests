@@ -1,9 +1,24 @@
-
+# Requests
 [![license](http://dmlc.github.io/img/apache2.svg)](https://raw.githubusercontent.com/asmcos/requests/master/LICENSE)
 
-# requests
+# Requests
+Requests is an HTTP library, it is easy to use. Similar to Python requests.
 
-Requests is an HTTP library  , it is easy to use. Similar to Python requests.
+Warning: Session is not safe in multiple goroutines. You can not do as following:
+
+    // Bad! Do not call session in in multiple goroutines!!!!!
+    session := requests.Sessions()
+
+    // goroutine 1
+    go func(){
+       session.Post(url1) 
+    }()
+
+    // goroutine 2
+    go func(){
+       session.Post(url2) 
+    }()
+
 
 # Installation
 
@@ -11,109 +26,274 @@ Requests is an HTTP library  , it is easy to use. Similar to Python requests.
 go get -u github.com/asmcos/requests
 ```
 
-# Start
+# Examples
+> For more examples, refer to https://github.com/asmcos/requests/tree/master/examples
 
-``` go
-package main
+## Get
+    package main
+    import (
+        "github.com/asmcos/requests"
+        "fmt"
+    )
 
-import "github.com/asmcos/requests"
-
-func main (){
-
-        resp,err := requests.Get("http://www.zhanluejia.net.cn")
-        if err != nil{
-          return
+    func main(){
+        var json map[string]interface{}
+        params := requests.Params{"name": "asmcos", "page":"1"}
+        resp, err := requests.Get("https://httpbin.org/json", params)
+        if err != nil {
+            panic(err)
+        }else{
+            resp.Json(&json)
+            for k, v := range json {
+                fmt.Println(k, v)
+            }
         }
-        println(resp.Text())
-}
-```
+    }
+
 
 ## Post
 
-``` go
-package main
+### Post params
 
-import "github.com/asmcos/requests"
-
-
-func main (){
-
-        data := requests.Datas{
-          "name":"requests_post_test",
+    // Post params
+    func TestPostParams(t *testing.T) {
+        println("Test POST: post params")
+        data := requests.Params{
+            "name": "asmcos",
         }
-        resp,_ := requests.Post("https://www.httpbin.org/post",data)
+        resp, err := requests.Post("https://www.httpbin.org/post", data)
+        if err == nil {
+            fmt.Println(resp.Text())
+        }
+    }
+#### Post query string
+
+    // Post QueryString: application/x-www-form-urlencoded
+    func TestPostQueryString(t *testing.T) {
+    	queryString := "name=Alex&age=29"
+    	resp, err := requests.Post("https://www.httpbin.org/post", queryString)
+    	if err != nil {
+            t.Fatal(err)
+    	}
+    	var data = struct {
+    		Form struct{
+                Name string
+                Age string
+            }
+    	}{}
+    	err = resp.Json(&data)
+    	if data.Form.Age != "29"{
+            t.Error("invalid response body:", resp.Text())
+    	}
+    }
+
+
+### Post Form Data
+    // Post Form Data
+    func TestPostForm(t *testing.T) {
+        println("Test POST: post form data")
+        data := requests.Datas{
+            "comments": "ew",
+        }
+        resp, err := requests.Post("https://www.httpbin.org/post", data)
+        if err == nil {
+            fmt.Println(resp.Text())
+        }
+    }
+
+
+### Post Json (default)
+    func TestPostJson(t *testing.T) {
+        println("Test POST: post json data")
+        json := requests.Json{
+            "key": "value",
+        }
+        /*
+        //it still works! 
+        json = map[string]interface{}{
+            "key": "value",
+        }
+        */
+        resp, err := requests.Post("https://www.httpbin.org/post", json)
+        if err == nil {
+            fmt.Println(resp.Text())
+        }
+    }
+
+### Post Raw text/plain
+    func TestRawString(t *testing.T) {
+        println("Test POST: post data and json")
+        rawText := "raw data: Hi, Jack!"
+        resp, err := requests.Post(
+            "https://www.httpbin.org/post", 
+            rawText,
+            requests.Header{"Content-Type": "text/plain"},
+        )
+        if err == nil {
+            fmt.Println(resp.Text())
+        }
+    }
+
+### PostFiles
+
+	path, _ := os.Getwd()
+	session := requests.Sessions()
+
+	resp, err := session.SetDebug(true).Post(
+		"https://www.httpbin.org/post",
+		requests.Files{
+            "file1": path + "/README.md",
+            "file2": path + "/version",
+        },
+	)
+	if err == nil {
+		fmt.Println(resp.Text())
+	}
+
+## Session Support
+    // 0. Make a session
+	session := r.Sessions()
+
+    // 1. First, set cookies: count=100
+	var data struct {
+		Cookies struct {
+			Count string `json:"count"`
+		}
+	}
+	session.Get("https://httpbin.org/cookies/set?count=100")
+
+	// 2. Second, get cookies
+	resp, err := session.Get("https://httpbin.org/cookies")
+	if err == nil {
+		resp.Json(&data)
+        if data.Cookies.Count!="100"{
+            t.Fatal("Failed to get valid cookies: "+resp.Text())
+        }
+	}
+
+Warning: Session is not safe in multi goroutine. You can not do as following:
+
+    // Bad! Do not call session in in multi goroutine!!!!!
+    session := requests.Sessions()
+
+    // goroutine 1
+    go func(){
+       session.Post(url1) 
+    }()
+
+    // goroutine 2
+    go func(){
+       session.Post(url2) 
+    }()
+
+## Request Options
+
+### SetTimeout
+
+    session := Requests.Sessions()
+    session.SetTimeout(20)
+
+### Debug Mode
+    
+    session.Debug = 1
+
+### Set Authentication
+    session := requests.Sessions()
+    resp,_ := session.Get("https://api.github.com/user",requests.Auth{"asmcos","password...."})
+
+### Set Cookie
+	cookie1 := http.Cookie{Name: "cookie_name", Value: "cookie_value"}
+    session.SetCookie(&cookie1)
+
+### Set header
+
+    func TestGetParamsHeaders(t *testing.T) {
+        println("Test Get: custom header and params")
+        requests.Get("http://www.zhanluejia.net.cn",
+            requests.Header{"Referer": "http://www.jeapedu.com"},
+            requests.Params{"page": "1", "size": "20"},
+            requests.Params{"name": "ahuio"},
+        )
+    }
+
+    func TestGetParamsHeaders2(t *testing.T) {
+        session := requests.Sessions()
+        session.SetHeader("accept-encoding", "gzip, deflate, br")
+        session.Run("http://www.zhanluejia.net.cn",
+            requests.Params{"page": "1", "size": "20"},
+            requests.Params{"name": "ahuio"},
+        )
+    }
+
+    func TestResponseHeader(t *testing.T) {
+        resp, _ := requests.Get("https://www.baidu.com/")
         println(resp.Text())
-}
+        println(resp.R.Header.Get("location"))
+        println(resp.R.Header.Get("Location"))
+    }
 
-```
+two or more headers ...
 
-     Server return data...
-
-``` json
-{
-  "args": {},
-  "data": "",
-  "files": {},
-  "form": {
-    "name": "requests_post_test"
-  },
-  "headers": {
-    "Accept-Encoding": "gzip",
-    "Connection": "close",
-    "Content-Length": "23",
-    "Content-Type": "application/x-www-form-urlencoded",
-    "Host": "www.httpbin.org",
-    "User-Agent": "Go-Requests 0.5"
-  },
-  "json": null,
-  "origin": "114.242.34.110",
-  "url": "https://www.httpbin.org/post"
-}
-
-```
+    headers1 := requests.Header{"Referer": "http://www.jeapedu.com"},
+    ....
+    resp,_ = session.Get(
+        "http://www.zhanluejia.net.cn",
+        headers1,
+        headers2,
+        headers3,
+    )
 
 
-## PostJson
+## Response
+### Fetch Response Body
+https://github.com/asmcos/requests/blob/master/examples/resp_test.go
 
-``` go
-package main
+    fmt.Println(resp.Text())
+    fmt.Println(resp.Content())
 
-import "github.com/asmcos/requests"
+### Fetch Response Cookies
+https://github.com/asmcos/requests/blob/master/examples/cookie_test.go
 
+    resp,_ = session.Get("https://www.httpbin.org")
+    coo := resp.Cookies()
+    for _, c:= range coo{
+        fmt.Println(c.Name,c.Value)
+    }
 
-func main (){
+## Custom
 
-        jsonStr := "{\"name\":\"requests_post_test\"}"
-        resp,_ := requests.PostJson("https://www.httpbin.org/post",jsonStr)
-        println(resp.Text())
-}
+### Custom User Agent
 
-```
+	headerK := "User-Agent"
+	headerV := "Custom-Test-Go-User-Agent"
+	requests.SetHeader(headerK, headerV)
 
-     Server return data...
+# Utils
 
-``` json
-{
-  "args": {},
-  "data": "",
-  "files": {},
-  "form": {
-    "name": "requests_post_test"
-  },
-  "headers": {
-    "Accept-Encoding": "gzip",
-    "Connection": "close",
-    "Content-Length": "23",
-    "Content-Type": "application/x-www-form-urlencoded",
-    "Host": "www.httpbin.org",
-    "User-Agent": "Go-Requests 0.5"
-  },
-  "json": null,
-  "origin": "114.242.34.110",
-  "url": "https://www.httpbin.org/post"
-}
+## Build Request
 
-```
+	req, err := r.BuildRequest("post", "http://baidu.com/a/b/c", r.Json{
+		"age": 1,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	body, _ := ioutil.ReadAll(req.Body)
+	expectedBody := `{"age":1}`
+	if string(body) != expectedBody {
+		t.Fatal("Failed to build request")
+	}
+
+## Generate curl shell command
+
+	req, _ := requests.BuildRequest("post", "https://baidu.com/path?q=curl&v=1", requests.Json{
+		"age": 1,
+	})
+	curl := requests.BuildCurlRequest(req)
+	if !regexp.MustCompile(`^curl -X POST .+ 'https://baidu.com/path\?q=curl&v=1'`).MatchString(curl) {
+		t.Fatal(`bad curl cmd: ` + curl)
+	}
+
 
 # Feature Support
   - Set headers
@@ -127,113 +307,7 @@ func main (){
   - Debug
   - SetTimeout
 
+# Thanks
+This project is inspired by [github.com/asmcos/requests](http://github.com/asmcos/requests). 
 
-# Set header
-
-### example 1
-
-``` go
-req := requests.Requests()
-
-resp,err := req.Get("http://www.zhanluejia.net.cn",requests.Header{"Referer":"http://www.jeapedu.com"})
-if (err == nil){
-  println(resp.Text())
-}
-```
-
-### example 2
-
-``` go
-req := requests.Requests()
-req.Header.Set("accept-encoding", "gzip, deflate, br")
-resp,_ := req.Get("http://www.zhanluejia.net.cn",requests.Header{"Referer":"http://www.jeapedu.com"})
-println(resp.Text())
-
-```
-
-### example 3
-
-``` go
-h := requests.Header{
-  "Referer":         "http://www.jeapedu.com",
-  "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
-}
-resp,_ := req.Get("http://wwww.zhanluejia.net.cn",h)
-
-h2 := requests.Header{
-  ...
-  ...
-}
-h3,h4 ....
-// two or more headers ...
-resp,_ = req.Get("http://www.zhanluejia.net.cn",h,h2,h3,h4)
-```
-
-
-# Set params
-
-``` go
-p := requests.Params{
-  "title": "The blog",
-  "name":  "file",
-  "id":    "12345",
-}
-resp,_ := req.Get("http://www.cpython.org", p)
-
-```
-
-
-# Auth
-
-Test with the `correct` user information.
-
-``` go
-req := requests.Requests()
-resp,_ := req.Get("https://api.github.com/user",requests.Auth{"asmcos","password...."})
-println(resp.Text())
-```
-
-github return
-
-```
-{"login":"asmcos","id":xxxxx,"node_id":"Mxxxxxxxxx==".....
-```
-
-# JSON
-
-``` go
-req := requests.Requests()
-req.Header.Set("Content-Type","application/json")
-resp,_ = req.Get("https://httpbin.org/json")
-
-var json map[string]interface{}
-resp.Json(&json)
-
-for k,v := range json{
-  fmt.Println(k,v)
-}
-```
-
-
-# SetTimeout
-
-```
-req := Requests()
-req.Debug = 1
-
-// 20 Second
-req.SetTimeout(20)
-req.Get("http://golang.org")
-```
-
-# Get Cookies
-
-``` go
-resp,_ = req.Get("https://www.httpbin.org")
-coo := resp.Cookies()
-// coo is [] *http.Cookies
-println("********cookies*******")
-for _, c:= range coo{
-  fmt.Println(c.Name,c.Value)
-}
-```
+Great thanks to it :).
