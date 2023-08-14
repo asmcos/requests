@@ -21,7 +21,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"net/http/cookiejar"
@@ -288,7 +287,7 @@ func (resp *Response) Content() []byte {
 		Body = reader
 	}
 
-	resp.content, err = ioutil.ReadAll(Body)
+	resp.content, err = io.ReadAll(Body)
 	if err != nil {
 		return nil
 	}
@@ -376,7 +375,7 @@ func (req *Request) PostJson(origurl string, args ...interface{}) (resp *Respons
 				req.Header.Set(k, v)
 			}
 		case string:
-			req.setBodyRawBytes(ioutil.NopCloser(strings.NewReader(arg.(string))))
+			req.setBodyRawBytes(io.NopCloser(strings.NewReader(arg.(string))))
 		case Auth:
 			// a{username,password}
 			req.httpreq.SetBasicAuth(a[0], a[1])
@@ -386,7 +385,7 @@ func (req *Request) PostJson(origurl string, args ...interface{}) (resp *Respons
 			if err != nil {
 				return nil, err
 			}
-			req.setBodyRawBytes(ioutil.NopCloser(b))
+			req.setBodyRawBytes(io.NopCloser(b))
 		}
 	}
 
@@ -513,7 +512,7 @@ func (req *Request) setBodyBytes(Forms url.Values) {
 
 	// maybe
 	data := Forms.Encode()
-	req.httpreq.Body = ioutil.NopCloser(strings.NewReader(data))
+	req.httpreq.Body = io.NopCloser(strings.NewReader(data))
 	req.httpreq.ContentLength = int64(len(data))
 }
 
@@ -531,6 +530,12 @@ func (req *Request) buildFilesAndForms(files []map[string]string, datas []map[st
 	var b bytes.Buffer
 	w := multipart.NewWriter(&b)
 
+	for _, data := range datas {
+		for k, v := range data {
+			w.WriteField(k, v)
+		}
+	}
+
 	for _, file := range files {
 		for k, v := range file {
 			part, err := w.CreateFormFile(k, v)
@@ -546,16 +551,10 @@ func (req *Request) buildFilesAndForms(files []map[string]string, datas []map[st
 		}
 	}
 
-	for _, data := range datas {
-		for k, v := range data {
-			w.WriteField(k, v)
-		}
-	}
-
 	w.Close()
 	// set file header example:
 	// "Content-Type": "multipart/form-data; boundary=------------------------7d87eceb5520850c",
-	req.httpreq.Body = ioutil.NopCloser(bytes.NewReader(b.Bytes()))
+	req.httpreq.Body = io.NopCloser(bytes.NewReader(b.Bytes()))
 	req.httpreq.ContentLength = int64(b.Len())
 	req.Header.Set("Content-Type", w.FormDataContentType())
 }
