@@ -530,6 +530,12 @@ func (req *Request) buildFilesAndForms(files []map[string]string, datas []map[st
 	var b bytes.Buffer
 	w := multipart.NewWriter(&b)
 
+	for _, data := range datas {
+		for k, v := range data {
+			w.WriteField(k, v)
+		}
+	}
+
 	for _, file := range files {
 		for k, v := range file {
 			part, err := w.CreateFormFile(k, v)
@@ -542,12 +548,6 @@ func (req *Request) buildFilesAndForms(files []map[string]string, datas []map[st
 			if err != nil {
 				panic(err)
 			}
-		}
-	}
-
-	for _, data := range datas {
-		for k, v := range data {
-			w.WriteField(k, v)
 		}
 	}
 
