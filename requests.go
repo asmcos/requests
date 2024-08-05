@@ -138,16 +138,14 @@ func (req *Request) Get(origurl string, args ...interface{}) (resp *Response, er
 	res, err := req.Client.Do(req.httpreq)
 
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
-
 
 	resp = &Response{}
 	resp.R = res
 	resp.req = req
 
-    resp.Content()
+	resp.Content()
 	defer res.Body.Close()
 
 	resp.ResponseDebug()
@@ -232,9 +230,8 @@ func (req *Request) SetTimeout(n time.Duration) {
 	req.Client.Timeout = time.Duration(n * time.Second)
 }
 
-
-func (req *Request) Close( ) {
-    req.httpreq.Close = true
+func (req *Request) Close() {
+	req.httpreq.Close = true
 }
 
 func (req *Request) Proxy(proxyurl string) {
@@ -242,7 +239,6 @@ func (req *Request) Proxy(proxyurl string) {
 	urli := url.URL{}
 	urlproxy, err := urli.Parse(proxyurl)
 	if err != nil {
-		fmt.Println("Set proxy failed")
 		return
 	}
 	req.Client.Transport = &http.Transport{
@@ -274,13 +270,12 @@ func (resp *Response) Content() []byte {
 
 	var err error
 
-    if len(resp.content) > 0{
-        return resp.content
-    }
+	if len(resp.content) > 0 {
+		return resp.content
+	}
 
 	var Body = resp.R.Body
 	if resp.R.Header.Get("Content-Encoding") == "gzip" && resp.req.Header.Get("Accept-Encoding") != "" {
-		// fmt.Println("gzip")
 		reader, err := gzip.NewReader(Body)
 		if err != nil {
 			return nil
@@ -409,17 +404,15 @@ func (req *Request) PostJson(origurl string, args ...interface{}) (resp *Respons
 	req.httpreq.ContentLength = 0
 
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
-
 
 	resp = &Response{}
 	resp.R = res
 	resp.req = req
 
-    resp.Content()
-    defer res.Body.Close()
+	resp.Content()
+	defer res.Body.Close()
 	resp.ResponseDebug()
 	return resp, nil
 }
@@ -428,7 +421,7 @@ func (req *Request) Post(origurl string, args ...interface{}) (resp *Response, e
 
 	req.httpreq.Method = "POST"
 
-    //set default
+	//set default
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	// set params ?a=b&b=c
@@ -492,17 +485,15 @@ func (req *Request) Post(origurl string, args ...interface{}) (resp *Response, e
 	req.httpreq.ContentLength = 0
 
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
-
 
 	resp = &Response{}
 	resp.R = res
 	resp.req = req
 
-    resp.Content()
-    defer res.Body.Close()
+	resp.Content()
+	defer res.Body.Close()
 
 	resp.ResponseDebug()
 	return resp, nil
