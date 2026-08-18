@@ -32,7 +32,7 @@ import (
 	"time"
 )
 
-var VERSION string = "0.8"
+var VERSION string = "0.9"
 
 type Request struct {
 	httpreq *http.Request
@@ -95,6 +95,7 @@ func Get(origurl string, args ...interface{}) (resp *Response, err error) {
 func (req *Request) Get(origurl string, args ...interface{}) (resp *Response, err error) {
 
 	req.httpreq.Method = "GET"
+	req.resetBody()
 
 	// set params ?a=b&b=c
 	//set Header
@@ -109,20 +110,20 @@ func (req *Request) Get(origurl string, args ...interface{}) (resp *Response, er
 		// arg is Header , set to request header
 		case Header:
 
-			for k, v := range a {
-				req.Header.Set(k, v)
-			}
+			req.applyHeader(a)
 			// arg is "GET" params
 			// ?title=website&id=1860&from=login
 		case Params:
 			params = append(params, a)
 		case Auth:
-			// a{username,password}
-			req.httpreq.SetBasicAuth(a[0], a[1])
+			req.applyAuth(a)
 		}
 	}
 
-	disturl, _ := buildURLParams(origurl, params...)
+	disturl, err := buildURLParams(origurl, params...)
+	if err != nil {
+		return nil, err
+	}
 
 	//prepare to Do
 	URL, err := url.Parse(disturl)
@@ -131,27 +132,7 @@ func (req *Request) Get(origurl string, args ...interface{}) (resp *Response, er
 	}
 	req.httpreq.URL = URL
 
-	req.ClientSetCookies()
-
-	req.RequestDebug()
-
-	res, err := req.Client.Do(req.httpreq)
-
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-
-
-	resp = &Response{}
-	resp.R = res
-	resp.req = req
-
-    resp.Content()
-	defer res.Body.Close()
-
-	resp.ResponseDebug()
-	return resp, nil
+	return req.doRequest()
 }
 
 // handle URL params
@@ -162,25 +143,15 @@ func buildURLParams(userURL string, params ...map[string]string) (string, error)
 		return "", err
 	}
 
-	parsedQuery, err := url.ParseQuery(parsedURL.RawQuery)
-
-	if err != nil {
-		return "", nil
-	}
+	parsedQuery := parsedURL.Query()
 
 	for _, param := range params {
 		for key, value := range param {
 			parsedQuery.Add(key, value)
 		}
 	}
-	return addQueryParams(parsedURL, parsedQuery), nil
-}
-
-func addQueryParams(parsedURL *url.URL, parsedQuery url.Values) string {
-	if len(parsedQuery) > 0 {
-		return strings.Join([]string{strings.Replace(parsedURL.String(), "?"+parsedURL.RawQuery, "", -1), parsedQuery.Encode()}, "?")
-	}
-	return strings.Replace(parsedURL.String(), "?"+parsedURL.RawQuery, "", -1)
+	parsedURL.RawQuery = parsedQuery.Encode()
+	return parsedURL.String(), nil
 }
 
 func (req *Request) RequestDebug() {
@@ -232,24 +203,47 @@ func (req *Request) SetTimeout(n time.Duration) {
 	req.Client.Timeout = time.Duration(n * time.Second)
 }
 
-
-func (req *Request) Close( ) {
-    req.httpreq.Close = true
+func (req *Request) Close() {
+	req.httpreq.Close = true
 }
 
 func (req *Request) Proxy(proxyurl string) {
 
-	urli := url.URL{}
-	urlproxy, err := urli.Parse(proxyurl)
+	urlproxy, err := url.Parse(proxyurl)
 	if err != nil {
-		fmt.Println("Set proxy failed")
 		return
 	}
-	req.Client.Transport = &http.Transport{
-		Proxy:           http.ProxyURL(urlproxy),
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
+	t := req.ensureTransport()
+	t.Proxy = http.ProxyURL(urlproxy)
+}
 
+// SetInsecureSkipVerify skips TLS certificate verification.
+// Equivalent to python requests verify=False. Use only in test environments.
+func (req *Request) SetInsecureSkipVerify(skip bool) {
+	t := req.ensureTransport()
+	if t.TLSClientConfig == nil {
+		t.TLSClientConfig = &tls.Config{}
+	}
+	t.TLSClientConfig.InsecureSkipVerify = skip
+}
+
+func (req *Request) ensureTransport() *http.Transport {
+	if req.Client.Transport == nil {
+		if dt, ok := http.DefaultTransport.(*http.Transport); ok {
+			t := dt.Clone()
+			req.Client.Transport = t
+			return t
+		}
+		t := &http.Transport{}
+		req.Client.Transport = t
+		return t
+	}
+	if t, ok := req.Client.Transport.(*http.Transport); ok {
+		return t
+	}
+	t := &http.Transport{}
+	req.Client.Transport = t
+	return t
 }
 
 /**************/
@@ -274,23 +268,27 @@ func (resp *Response) Content() []byte {
 
 	var err error
 
-    if len(resp.content) > 0{
-        return resp.content
-    }
+	if resp.content != nil {
+		return resp.content
+	}
 
 	var Body = resp.R.Body
 	if resp.R.Header.Get("Content-Encoding") == "gzip" && resp.req.Header.Get("Accept-Encoding") != "" {
-		// fmt.Println("gzip")
 		reader, err := gzip.NewReader(Body)
 		if err != nil {
-			return nil
+			resp.content = []byte{}
+			return resp.content
 		}
+		defer reader.Close()
 		Body = reader
 	}
 
 	resp.content, err = ioutil.ReadAll(Body)
 	if err != nil {
-		return nil
+		if resp.content == nil {
+			resp.content = []byte{}
+		}
+		return resp.content
 	}
 
 	return resp.content
@@ -360,6 +358,7 @@ func PostJson(origurl string, args ...interface{}) (resp *Response, err error) {
 func (req *Request) PostJson(origurl string, args ...interface{}) (resp *Response, err error) {
 
 	req.httpreq.Method = "POST"
+	req.resetBody()
 
 	req.Header.Set("Content-Type", "application/json")
 
@@ -367,69 +366,52 @@ func (req *Request) PostJson(origurl string, args ...interface{}) (resp *Respons
 	//Client.Do can copy cookie from client.Jar to req.Header
 	delete(req.httpreq.Header, "Cookie")
 
+	params := []map[string]string{}
+
 	for _, arg := range args {
 		switch a := arg.(type) {
 		// arg is Header , set to request header
 		case Header:
 
-			for k, v := range a {
-				req.Header.Set(k, v)
-			}
+			req.applyHeader(a)
+		case Params:
+			params = append(params, a)
 		case string:
-			req.setBodyRawBytes(ioutil.NopCloser(strings.NewReader(arg.(string))))
+			req.setBody([]byte(a))
+		case []byte:
+			req.setBody(a)
 		case Auth:
-			// a{username,password}
-			req.httpreq.SetBasicAuth(a[0], a[1])
+			req.applyAuth(a)
 		default:
-			b := new(bytes.Buffer)
-			err = json.NewEncoder(b).Encode(a)
+			b, err := json.Marshal(a)
 			if err != nil {
 				return nil, err
 			}
-			req.setBodyRawBytes(ioutil.NopCloser(b))
+			req.setBody(b)
 		}
 	}
 
+	disturl, err := buildURLParams(origurl, params...)
+	if err != nil {
+		return nil, err
+	}
+
 	//prepare to Do
-	URL, err := url.Parse(origurl)
+	URL, err := url.Parse(disturl)
 	if err != nil {
 		return nil, err
 	}
 	req.httpreq.URL = URL
 
-	req.ClientSetCookies()
-
-	req.RequestDebug()
-
-	res, err := req.Client.Do(req.httpreq)
-
-	// clear post  request information
-	req.httpreq.Body = nil
-	req.httpreq.GetBody = nil
-	req.httpreq.ContentLength = 0
-
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-
-
-	resp = &Response{}
-	resp.R = res
-	resp.req = req
-
-    resp.Content()
-    defer res.Body.Close()
-	resp.ResponseDebug()
-	return resp, nil
+	resp, err = req.doRequest()
+	req.resetBody()
+	return resp, err
 }
 
 func (req *Request) Post(origurl string, args ...interface{}) (resp *Response, err error) {
 
 	req.httpreq.Method = "POST"
-
-    //set default
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.resetBody()
 
 	// set params ?a=b&b=c
 	//set Header
@@ -446,9 +428,7 @@ func (req *Request) Post(origurl string, args ...interface{}) (resp *Response, e
 		// arg is Header , set to request header
 		case Header:
 
-			for k, v := range a {
-				req.Header.Set(k, v)
-			}
+			req.applyHeader(a)
 			// arg is "GET" params
 			// ?title=website&id=1860&from=login
 		case Params:
@@ -459,15 +439,25 @@ func (req *Request) Post(origurl string, args ...interface{}) (resp *Response, e
 		case Files:
 			files = append(files, a)
 		case Auth:
-			// a{username,password}
-			req.httpreq.SetBasicAuth(a[0], a[1])
+			req.applyAuth(a)
 		}
 	}
 
-	disturl, _ := buildURLParams(origurl, params...)
+	// default Content-Type only when caller did not set one
+	if len(files) == 0 && req.Header.Get("Content-Type") == "" {
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	}
+
+	disturl, err := buildURLParams(origurl, params...)
+	if err != nil {
+		return nil, err
+	}
 
 	if len(files) > 0 {
-		req.buildFilesAndForms(files, datas)
+		err = req.buildFilesAndForms(files, datas)
+		if err != nil {
+			return nil, err
+		}
 
 	} else {
 		Forms := req.buildForms(datas...)
@@ -480,32 +470,70 @@ func (req *Request) Post(origurl string, args ...interface{}) (resp *Response, e
 	}
 	req.httpreq.URL = URL
 
-	req.ClientSetCookies()
+	resp, err = req.doRequest()
+	req.resetBody()
+	return resp, err
+}
 
-	req.RequestDebug()
+func (req *Request) applyHeader(h Header) {
+	for k, v := range h {
+		if strings.EqualFold(k, "Host") {
+			req.httpreq.Host = v
+			continue
+		}
+		req.Header.Set(k, v)
+	}
+}
 
-	res, err := req.Client.Do(req.httpreq)
+func (req *Request) applyAuth(a Auth) {
+	if len(a) >= 2 {
+		req.httpreq.SetBasicAuth(a[0], a[1])
+	}
+}
 
-	// clear post param
+func (req *Request) resetBody() {
 	req.httpreq.Body = nil
 	req.httpreq.GetBody = nil
 	req.httpreq.ContentLength = 0
+}
 
+func (req *Request) doRequest() (*Response, error) {
+	req.ClientSetCookies()
+	req.RequestDebug()
+
+	httpReq := req.httpreq
+	if req.httpreq.GetBody != nil {
+		cloned := req.httpreq.Clone(req.httpreq.Context())
+		body, err := req.httpreq.GetBody()
+		if err != nil {
+			return nil, err
+		}
+		cloned.Body = body
+		httpReq = cloned
+	}
+
+	res, err := req.Client.Do(httpReq)
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 
-
-	resp = &Response{}
+	resp := &Response{}
 	resp.R = res
 	resp.req = req
 
-    resp.Content()
-    defer res.Body.Close()
+	resp.Content()
+	res.Body.Close()
 
 	resp.ResponseDebug()
 	return resp, nil
+}
+
+func (req *Request) setBody(data []byte) {
+	req.httpreq.ContentLength = int64(len(data))
+	req.httpreq.GetBody = func() (io.ReadCloser, error) {
+		return ioutil.NopCloser(bytes.NewReader(data)), nil
+	}
+	req.httpreq.Body, _ = req.httpreq.GetBody()
 }
 
 // only set forms
@@ -513,51 +541,53 @@ func (req *Request) setBodyBytes(Forms url.Values) {
 
 	// maybe
 	data := Forms.Encode()
-	req.httpreq.Body = ioutil.NopCloser(strings.NewReader(data))
-	req.httpreq.ContentLength = int64(len(data))
-}
-
-// only set forms
-func (req *Request) setBodyRawBytes(read io.ReadCloser) {
-	req.httpreq.Body = read
+	req.setBody([]byte(data))
 }
 
 // upload file and form
 // build to body format
-func (req *Request) buildFilesAndForms(files []map[string]string, datas []map[string]string) {
+func (req *Request) buildFilesAndForms(files []map[string]string, datas []map[string]string) error {
 
 	//handle file multipart
 
 	var b bytes.Buffer
 	w := multipart.NewWriter(&b)
 
+	// write form fields before files so S3-style uploads receive required keys first
+	for _, data := range datas {
+		for k, v := range data {
+			if err := w.WriteField(k, v); err != nil {
+				return err
+			}
+		}
+	}
+
 	for _, file := range files {
 		for k, v := range file {
 			part, err := w.CreateFormFile(k, v)
 			if err != nil {
-				fmt.Printf("Upload %s failed!", v)
-				panic(err)
+				return err
 			}
-			file := openFile(v)
-			_, err = io.Copy(part, file)
+			f, err := os.Open(v)
 			if err != nil {
-				panic(err)
+				return err
+			}
+			_, err = io.Copy(part, f)
+			f.Close()
+			if err != nil {
+				return err
 			}
 		}
 	}
 
-	for _, data := range datas {
-		for k, v := range data {
-			w.WriteField(k, v)
-		}
+	if err := w.Close(); err != nil {
+		return err
 	}
-
-	w.Close()
 	// set file header example:
 	// "Content-Type": "multipart/form-data; boundary=------------------------7d87eceb5520850c",
-	req.httpreq.Body = ioutil.NopCloser(bytes.NewReader(b.Bytes()))
-	req.httpreq.ContentLength = int64(b.Len())
+	req.setBody(b.Bytes())
 	req.Header.Set("Content-Type", w.FormDataContentType())
+	return nil
 }
 
 // build post Form data
@@ -569,14 +599,4 @@ func (req *Request) buildForms(datas ...map[string]string) (Forms url.Values) {
 		}
 	}
 	return Forms
-}
-
-// open file for post upload files
-
-func openFile(filename string) *os.File {
-	r, err := os.Open(filename)
-	if err != nil {
-		panic(err)
-	}
-	return r
 }
