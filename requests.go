@@ -78,6 +78,9 @@ func Requests() *Request {
 	jar, _ := cookiejar.New(nil)
 
 	req.Client.Jar = jar
+	req.httpreq.GetBody = func() (io.ReadCloser, error) {
+		return ioutil.NopCloser(req.httpreq.Body), nil
+	}
 
 	return req
 }
