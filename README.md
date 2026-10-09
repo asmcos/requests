@@ -20,7 +20,7 @@ import "github.com/asmcos/requests"
 
 func main (){
 
-        resp,err := requests.Get("http://www.zhanluejia.net.cn")
+        resp,err := requests.Get("http://www.jeapedu.com")
         if err != nil{
           return
         }
