@@ -265,11 +265,16 @@ func (resp *Response) ResponseDebug() {
 }
 
 func (resp *Response) Content() []byte {
+	resp.readContent()
+	return resp.content
+}
+
+func (resp *Response) readContent() error {
 
 	var err error
 
 	if resp.content != nil {
-		return resp.content
+		return nil
 	}
 
 	var Body = resp.R.Body
@@ -277,7 +282,7 @@ func (resp *Response) Content() []byte {
 		reader, err := gzip.NewReader(Body)
 		if err != nil {
 			resp.content = []byte{}
-			return resp.content
+			return err
 		}
 		defer reader.Close()
 		Body = reader
@@ -288,10 +293,10 @@ func (resp *Response) Content() []byte {
 		if resp.content == nil {
 			resp.content = []byte{}
 		}
-		return resp.content
+		return err
 	}
 
-	return resp.content
+	return nil
 }
 
 func (resp *Response) Text() string {
@@ -521,8 +526,11 @@ func (req *Request) doRequest() (*Response, error) {
 	resp.R = res
 	resp.req = req
 
-	resp.Content()
+	err = resp.readContent()
 	res.Body.Close()
+	if err != nil {
+		return nil, err
+	}
 
 	resp.ResponseDebug()
 	return resp, nil
